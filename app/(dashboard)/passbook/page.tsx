@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Loader2, Calendar } from 'lucide-react';
+import { Loader2, Calendar, BookOpen, ArrowRight } from 'lucide-react';
 import { useData } from '@/lib/hooks/useData';
+import { usePassbookFee } from '@/lib/hooks/usePassbookFee';
+import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -79,21 +81,6 @@ function getColumns(freq: 'daily' | 'weekly' | 'monthly') {
 
 function fmt(v: number) {
     return `₦${Number(v).toLocaleString('en-NG')}`;
-}
-
-function nextPayoutDate(freq: string): string {
-    const now = new Date();
-    const y = now.getFullYear();
-    if (freq === 'daily') {
-        const last = new Date(y, now.getMonth() + 1, 0);
-        return last.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-    if (freq === 'weekly') {
-        const m = now.getMonth() + 1;
-        const qEnd = m <= 3 ? new Date(y, 2, 31) : m <= 6 ? new Date(y, 5, 30) : m <= 9 ? new Date(y, 8, 30) : new Date(y, 11, 31);
-        return qEnd.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
-    }
-    return `31 Dec ${y}`;
 }
 
 function LedgerTable({ schemes, freq }: { schemes: SchemeRow[]; freq: Tab }) {
@@ -179,11 +166,33 @@ async function fetchPassbook(): Promise<PassbookData> {
 
 export default function PassbookPage() {
     const [activeTab, setActiveTab] = useState<Tab>('daily');
+    const [passbookActivated, setPassbookActivated] = useState<boolean | null>(null);
     const { data, loading } = useData<PassbookData>('passbook', fetchPassbook);
+    const { feeLabel } = usePassbookFee();
+
+    useEffect(() => {
+        const loadStatus = async () => {
+            const supabase = createSupabaseBrowserClient();
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+            if (!user) {
+                setPassbookActivated(false);
+                return;
+            }
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('passbook_activated')
+                .eq('id', user.id)
+                .maybeSingle();
+            setPassbookActivated(profile?.passbook_activated ?? false);
+        };
+        void loadStatus();
+    }, []);
 
     const schemes = useMemo(() => data?.[activeTab] ?? [], [data, activeTab]);
 
-    if (loading) {
+    if (loading || passbookActivated === null) {
         return (
             <div className="flex items-center justify-center gap-2 py-16 text-sm text-brand-gray">
                 <Loader2 size={16} className="animate-spin" /> Loading passbook...
@@ -202,6 +211,28 @@ export default function PassbookPage() {
                     Your general savings ledger. Payouts are made on fixed platform dates.
                 </p>
             </div>
+
+            {!passbookActivated && (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+                            <BookOpen size={16} className="text-amber-700" />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-sm font-bold text-amber-900">Activate your Passbook</p>
+                            <p className="text-[11px] text-amber-700">
+                                One-time {feeLabel} fee to unlock festive savings &amp; your personal ledger.
+                            </p>
+                        </div>
+                    </div>
+                    <Link
+                        href="/onboarding/activate-passbook"
+                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700 transition-colors shrink-0"
+                    >
+                        Activate <ArrowRight size={12} />
+                    </Link>
+                </div>
+            )}
 
             {/* Tabs */}
             <div className="flex gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1">

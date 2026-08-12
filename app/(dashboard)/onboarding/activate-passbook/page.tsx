@@ -1,37 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { BookOpen, CheckCircle2, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { notifyError, notifySuccess } from '@/lib/toast';
-
-const DEFAULT_PASSBOOK_FEE = 500;
+import { usePassbookFee } from '@/lib/hooks/usePassbookFee';
 
 export default function ActivatePassbookPage() {
     const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
-    const [fee, setFee] = useState(DEFAULT_PASSBOOK_FEE);
-    const [feeLoading, setFeeLoading] = useState(true);
-
-    useEffect(() => {
-        const loadFee = async () => {
-            try {
-                const res = await fetch('/api/payments/passbook-activation', { cache: 'no-store' });
-                const json = await res.json();
-                if (res.ok && json.data?.amount != null) {
-                    setFee(Number(json.data.amount));
-                }
-            } catch {
-                // Keep default fee if lookup fails
-            } finally {
-                setFeeLoading(false);
-            }
-        };
-
-        void loadFee();
-    }, []);
-
-    const feeLabel = `NGN ${fee.toLocaleString('en-NG')}`;
+    const { feeLabel, loading: feeLoading } = usePassbookFee();
 
     const handleActivate = async () => {
         setLoading(true);

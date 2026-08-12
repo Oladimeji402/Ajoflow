@@ -8,6 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { notifyError, notifySuccess } from '@/lib/toast';
 import { useData } from '@/lib/hooks/useData';
 import { clientCache } from '@/lib/client-cache';
+import { usePassbookFee } from '@/lib/hooks/usePassbookFee';
 
 type SavingsGoal = {
     id: string;
@@ -67,6 +68,7 @@ async function fetchSavingsData(): Promise<SavingsData> {
 
 export default function SavingsPage() {
     const { showToast } = useToast();
+    const { feeLabel } = usePassbookFee();
 
     const { data, loading, mutate } = useData<SavingsData>('savings-data', fetchSavingsData);
     const goals   = data?.goals   ?? [];
@@ -326,7 +328,7 @@ export default function SavingsPage() {
                     <BookOpen size={26} className="text-amber-700" />
                 </div>
                 <h2 className="text-lg font-bold text-brand-navy">Activate your Passbook first</h2>
-                <p className="text-sm text-brand-gray">One-time NGN 500 fee to unlock savings goals.</p>
+                <p className="text-sm text-brand-gray">One-time {feeLabel} fee to unlock savings goals.</p>
                 <Link
                     href="/onboarding/activate-passbook"
                     className="inline-flex items-center gap-2 rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-primary-hover transition-colors"

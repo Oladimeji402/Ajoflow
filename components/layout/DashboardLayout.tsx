@@ -22,6 +22,7 @@ import { useToast } from '@/components/ui/Toast';
 import { notifyError, notifySuccess } from '@/lib/toast';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import { useRealtimeSubscription } from '@/lib/hooks/useRealtimeSubscription';
+import { usePassbookFee } from '@/lib/hooks/usePassbookFee';
 
 interface DashboardLayoutProps {
     children: ReactNode;
@@ -35,6 +36,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     const [bannerDismissed, setBannerDismissed] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
     const { showToast } = useToast();
+    const { feeLabel } = usePassbookFee();
     const { refreshTrigger } = useRealtimeSubscription({
         channelName: 'dashboard-notifications',
         tables: ['notifications'],
@@ -274,7 +276,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                             </div>
                             <div className="min-w-0">
                                 <p className="text-sm font-bold text-amber-900">Activate your Passbook</p>
-                                <p className="text-[11px] text-amber-700">One-time NGN 500 fee to unlock festive savings &amp; your personal ledger.</p>
+                                <p className="text-[11px] text-amber-700">One-time {feeLabel} fee to unlock festive savings &amp; your personal ledger.</p>
                             </div>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
