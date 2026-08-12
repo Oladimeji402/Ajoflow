@@ -1,15 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BookOpen, CheckCircle2, ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { notifyError, notifySuccess } from '@/lib/toast';
 
-const PASSBOOK_FEE = 500;
+const DEFAULT_PASSBOOK_FEE = 500;
 
 export default function ActivatePassbookPage() {
     const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
+    const [fee, setFee] = useState(DEFAULT_PASSBOOK_FEE);
+    const [feeLoading, setFeeLoading] = useState(true);
+
+    useEffect(() => {
+        const loadFee = async () => {
+            try {
+                const res = await fetch('/api/payments/passbook-activation', { cache: 'no-store' });
+                const json = await res.json();
+                if (res.ok && json.data?.amount != null) {
+                    setFee(Number(json.data.amount));
+                }
+            } catch {
+                // Keep default fee if lookup fails
+            } finally {
+                setFeeLoading(false);
+            }
+        };
+
+        void loadFee();
+    }, []);
+
+    const feeLabel = `NGN ${fee.toLocaleString('en-NG')}`;
 
     const handleActivate = async () => {
         setLoading(true);
@@ -60,7 +82,9 @@ export default function ActivatePassbookPage() {
                     <div className="flex items-center justify-between rounded-2xl bg-slate-50 border border-slate-200 px-5 py-4">
                         <div>
                             <p className="text-xs font-semibold text-brand-gray">Activation fee</p>
-                            <p className="text-3xl font-bold text-brand-navy mt-0.5">NGN 500</p>
+                            <p className="text-3xl font-bold text-brand-navy mt-0.5">
+                                {feeLoading ? '…' : feeLabel}
+                            </p>
                             <p className="text-[11px] text-brand-gray mt-0.5">One-time · Non-refundable</p>
                         </div>
                         <div className="h-14 w-14 flex items-center justify-center rounded-2xl bg-brand-primary/10">
@@ -91,13 +115,13 @@ export default function ActivatePassbookPage() {
 
                     <button
                         onClick={handleActivate}
-                        disabled={loading}
+                        disabled={loading || feeLoading}
                         className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white hover:bg-brand-primary-hover disabled:opacity-60 transition-colors"
                     >
                         {loading ? (
                             <><Loader2 size={16} className="animate-spin" /> Processing...</>
                         ) : (
-                            <>Activate for NGN 500 <ArrowRight size={16} /></>
+                            <>Activate for {feeLabel} <ArrowRight size={16} /></>
                         )}
                     </button>
                 </div>
