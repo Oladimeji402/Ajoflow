@@ -39,6 +39,24 @@ function LoginContent() {
         setFormError('');
         setIsLoading(true);
 
+        try {
+            const gateRes = await fetch('/api/auth/rate-gate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'login' }),
+            });
+            if (gateRes.status === 429) {
+                const payload = await gateRes.json().catch(() => ({}));
+                const message = payload.error ?? 'Too many sign-in attempts. Please wait and try again.';
+                setFormError(message);
+                notifyError(showToast, new Error(message), message);
+                setIsLoading(false);
+                return;
+            }
+        } catch {
+            // If the gate is unreachable, continue — auth still has its own protections.
+        }
+
         const supabase = createSupabaseBrowserClient({ persistSession: rememberMe });
         const { error: signInError } = await supabase.auth.signInWithPassword({
             email,

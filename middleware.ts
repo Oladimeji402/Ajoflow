@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getAdminAppUrl } from "@/lib/app-urls";
 
-const USER_PROTECTED_PATHS = ["/dashboard", "/groups", "/activity", "/notifications", "/settings"];
+const USER_PROTECTED_PATHS = ["/dashboard", "/activity", "/notifications", "/settings"];
 const AUTH_PAGES = ["/login", "/signup", "/forgot-password", "/reset-password"];
 
 function startsWithPath(pathname: string, paths: string[]) {
@@ -83,8 +83,6 @@ export const config = {
   matcher: [
     "/dashboard",
     "/dashboard/:path*",
-    "/groups",
-    "/groups/:path*",
     "/activity",
     "/activity/:path*",
     "/notifications",

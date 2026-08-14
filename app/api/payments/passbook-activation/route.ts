@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { badRequestResponse, requireUser, serverErrorResponse } from "@/lib/api/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { attributeMarketerOnPassbookActivation } from "@/lib/referrals/attribute-marketer";
+import {
+  RATE_LIMITS,
+  enforceRateLimit,
+  getClientIp,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 const DEFAULT_PASSBOOK_FEE_NGN = 500;
 const SETTINGS_KEY = "passbook_activation_fee";
@@ -55,10 +61,17 @@ export async function GET() {
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const auth = await requireUser();
     if (auth.error || !auth.user) return auth.error!;
+
+    const ip = getClientIp(request);
+    const limited = await enforceRateLimit(
+      `money-spend:passbook:${auth.user.id}:${ip}`,
+      RATE_LIMITS.moneySpend,
+    );
+    if (!limited.ok) return rateLimitResponse(limited.retryAfterSeconds);
 
     // 1. Already activated — never charge again.
     const { data: profile, error: profileError } = await auth.supabase

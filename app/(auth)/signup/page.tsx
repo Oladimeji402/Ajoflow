@@ -110,6 +110,24 @@ function SignUpContent() {
 
         setIsLoading(true);
 
+        try {
+            const gateRes = await fetch('/api/auth/rate-gate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'signup' }),
+            });
+            if (gateRes.status === 429) {
+                const payload = await gateRes.json().catch(() => ({}));
+                const message = payload.error ?? 'Too many sign-up attempts. Please wait and try again.';
+                setError(message);
+                showToast(message, { type: 'error' });
+                setIsLoading(false);
+                return;
+            }
+        } catch {
+            // continue if gate unreachable
+        }
+
         const supabase = createSupabaseBrowserClient();
         const normalizedEmail = email.trim().toLowerCase();
 

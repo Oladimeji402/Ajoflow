@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireUser, serverErrorResponse } from '@/lib/api/auth';
 import { sendWelcomeEmail } from '@/lib/email';
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export async function POST() {
   const auth = await requireUser();
@@ -35,7 +36,8 @@ export async function POST() {
 
     // Mark welcome email as sent in the database
     if (result.sent) {
-      await auth.supabase
+      const adminSupabase = createSupabaseAdminClient();
+      await adminSupabase
         .from('profiles')
         .update({ welcome_email_sent: true })
         .eq('id', auth.user.id);

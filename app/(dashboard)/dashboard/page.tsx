@@ -3,19 +3,20 @@
 import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
-    AlertTriangle,
     ArrowDownLeft,
     ArrowUpRight,
+    BookOpen,
     CheckCircle2,
     ChevronRight,
     CreditCard,
     Eye,
     EyeOff,
-    FileText,
     Landmark,
+    Plus,
     RefreshCw,
-    Wallet,
+    ShieldCheck,
     Target,
+    Wallet,
 } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useData } from '@/lib/hooks/useData';
@@ -77,7 +78,6 @@ async function fetchDashboard(): Promise<DashboardData> {
             .reduce((sum: number, g: { total_saved: number }) => sum + Number(g.total_saved ?? 0), 0);
     }
 
-    // Check if user has any savings schemes
     const schemesRes = await fetch('/api/savings/schemes');
     let hasSavingsSchemes = false;
     if (schemesRes.ok) {
@@ -93,11 +93,26 @@ async function fetchDashboard(): Promise<DashboardData> {
     };
 }
 
+function txLabel(tx: Transaction) {
+    if (tx.type === 'contribution') return tx.groups?.name ?? 'Contribution';
+    if (tx.type === 'payout') return tx.groups?.name ? `${tx.groups.name} payout` : 'Payout';
+    if (tx.type === 'individual_savings') {
+        return tx.metadata?.goalName ? `Saved to ${tx.metadata.goalName}` : 'Savings';
+    }
+    if (tx.type === 'bulk_contribution') {
+        if (Array.isArray(tx.metadata?.goalNames) && tx.metadata.goalNames.length) {
+            const names = tx.metadata.goalNames;
+            return `Saved to ${names[0]}${names.length > 1 ? ` +${names.length - 1}` : ''}`;
+        }
+        return 'Bulk savings';
+    }
+    if (tx.type === 'wallet_funding') return 'Wallet funding';
+    return 'Passbook activation';
+}
+
 export default function DashboardPage() {
-    const [activityFilter, setActivityFilter] = useState<'all' | 'contribution' | 'payout'>('all');
-    const [savedVisible, setSavedVisible] = useState(true);
+    const [balanceVisible, setBalanceVisible] = useState(true);
     const [refreshingBalance, setRefreshingBalance] = useState(false);
-    // Local wallet balance state — updated independently without re-fetching everything
     const [localWalletBalance, setLocalWalletBalance] = useState<number | null>(null);
 
     const { data, loading, error, mutate } = useData<DashboardData>('dashboard', fetchDashboard, { ttl: 30_000 });
@@ -106,34 +121,25 @@ export default function DashboardPage() {
     const transactions = data?.transactions ?? [];
     const individualSavingsTotal = data?.individualSavingsTotal ?? 0;
     const hasSavingsSchemes = data?.hasSavingsSchemes ?? false;
-
-    // Use the locally-refreshed balance if available, otherwise fall back to profile data
     const walletBalance = localWalletBalance ?? profile?.wallet_balance ?? 0;
 
-    const filteredActivity = useMemo(() => {
-        if (activityFilter === 'all') return transactions;
-        return transactions.filter((tx) => tx.type === activityFilter);
-    }, [activityFilter, transactions]);
+    const recentTx = useMemo(() => transactions.slice(0, 4), [transactions]);
 
-    const formatCurrency = (value: number) => {
-        return Number(value).toLocaleString('en-NG', {
+    const formatCurrency = (value: number) =>
+        Number(value).toLocaleString('en-NG', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
         });
-    };
 
     const refreshWalletBalance = async () => {
         setRefreshingBalance(true);
         try {
-            // 1. Trigger monicredit sync to detect new deposits
             const syncRes = await fetch('/api/wallet/check-deposits', { method: 'POST' });
             if (syncRes.ok) {
                 const syncJson = await syncRes.json();
-                // 2. Update ONLY the wallet balance locally — no full page reload
                 if (typeof syncJson.data?.balance === 'number') {
                     setLocalWalletBalance(syncJson.data.balance);
                 } else {
-                    // Fallback: fetch only profile balance from Supabase
                     const supabase = createSupabaseBrowserClient();
                     const { data: { user } } = await supabase.auth.getUser();
                     if (user) {
@@ -147,11 +153,9 @@ export default function DashboardPage() {
                         }
                     }
                 }
-                // 3. Silently update dashboard cache in background (no loading state)
                 mutate();
             }
         } catch {
-            // On error, still try a silent background refresh
             mutate();
         } finally {
             setRefreshingBalance(false);
@@ -160,12 +164,10 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="max-w-2xl mx-auto space-y-4 animate-pulse">
-                <div className="rounded-3xl bg-slate-200 h-44" />
-                <div className="rounded-3xl bg-white border border-slate-100 h-24" />
-                <div className="rounded-2xl bg-white border border-slate-100 h-28" />
+            <div className="max-w-md mx-auto space-y-4 animate-pulse">
+                <div className="rounded-3xl bg-slate-200 h-40" />
+                <div className="rounded-3xl bg-white border border-slate-100 h-28" />
                 <div className="rounded-2xl bg-white border border-slate-100 h-48" />
-                <div className="rounded-2xl bg-white border border-slate-100 h-40" />
             </div>
         );
     }
@@ -174,266 +176,210 @@ export default function DashboardPage() {
         return <div className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-600">{error}</div>;
     }
 
-    const quickActions = [
+    const setupItems = [
         {
-            href: '/wallet',
+            done: walletBalance > 0,
             icon: Wallet,
-            label: 'Fund Wallet',
-            bg: 'bg-blue-50',
-            color: 'text-blue-600',
-            badge: undefined,
-            onClick: undefined,
+            label: 'Add money to your wallet',
+            href: '/wallet',
         },
         {
-            href: '/pay',
-            icon: CreditCard,
-            label: 'Pay Now',
-            bg: 'bg-brand-primary',
-            color: 'text-white',
-            badge: undefined,
-            onClick: undefined,
+            done: !!profile?.bank_account,
+            icon: Landmark,
+            label: 'Link a bank account',
+            href: '/settings?tab=bank',
         },
         {
-            href: '/savings',
+            done: individualSavingsTotal > 0 || hasSavingsSchemes,
             icon: Target,
-            label: 'Savings',
-            bg: 'bg-emerald-50',
-            color: 'text-emerald-600',
-            badge: undefined,
-            onClick: undefined,
+            label: 'Start a savings plan',
+            href: '/savings',
         },
-        {
-            href: '/activity',
-            icon: FileText,
-            label: 'Statement',
-            bg: 'bg-amber-50',
-            color: 'text-amber-600',
-            badge: undefined,
-            onClick: undefined,
-        },
+    ];
+    const setupIncomplete = setupItems.some((item) => !item.done);
+    const setupDone = setupItems.filter((item) => item.done).length;
+
+    const quickActions = [
+        { href: '/pay', icon: CreditCard, label: 'Pay Now' },
+        { href: '/savings', icon: Target, label: 'Savings' },
+        { href: '/passbook', icon: BookOpen, label: 'Passbook' },
     ];
 
     return (
-        <div className="max-w-2xl mx-auto space-y-4">
-            {/* Balance Overview */}
-            <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#060E3A] via-[#0D2185] to-brand-primary p-5 text-white">
-                <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/5 blur-2xl pointer-events-none" />
-                <div className="absolute -bottom-14 -left-6 h-44 w-44 rounded-full bg-blue-300/15 blur-3xl pointer-events-none" />
-
-                {/* Wallet balance — full width card */}
-                <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
-                    <div className="mb-2 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                            <Wallet size={12} className="text-white/60" />
-                            <span className="text-[11px] font-medium text-white/70">Wallet Balance</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={refreshWalletBalance}
-                                disabled={refreshingBalance}
-                                className="inline-flex items-center gap-1 rounded-md border border-white/20 bg-white/10 px-2 py-1 text-[10px] font-semibold text-white/80 transition-colors hover:bg-white/20 disabled:opacity-60"
-                                aria-label="Refresh wallet balance"
-                            >
-                                <RefreshCw size={11} className={refreshingBalance ? 'animate-spin' : ''} />
-                                {refreshingBalance ? 'Refreshing' : 'Refresh'}
-                            </button>
-                            <button
-                                onClick={() => setSavedVisible((v) => !v)}
-                                className="text-white/50 transition-colors hover:text-white/90"
-                                aria-label={savedVisible ? 'Hide total saved' : 'Show total saved'}
-                            >
-                                {savedVisible ? <Eye size={13} /> : <EyeOff size={13} />}
-                            </button>
-                        </div>
+        <div className="max-w-md mx-auto space-y-4">
+            {/* Balance card — Add Money lives here */}
+            <section className="rounded-3xl bg-brand-primary p-5 text-white shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                        <ShieldCheck size={16} className="shrink-0 text-white/80" />
+                        <span className="text-sm font-medium text-white/90">Available Balance</span>
+                        <button
+                            type="button"
+                            onClick={() => setBalanceVisible((v) => !v)}
+                            className="text-white/70 hover:text-white"
+                            aria-label={balanceVisible ? 'Hide balance' : 'Show balance'}
+                        >
+                            {balanceVisible ? <Eye size={15} /> : <EyeOff size={15} />}
+                        </button>
                     </div>
-                    <p className="text-[18px] font-semibold leading-snug tracking-normal text-white/90">
-                        {savedVisible ? (
-                            <>
-                                <span className="font-normal">₦</span>
-                                {formatCurrency(walletBalance)}
-                            </>
-                        ) : '••••••'}
-                    </p>
+                    <Link
+                        href="/activity"
+                        className="inline-flex items-center gap-0.5 text-xs font-semibold text-white/85 hover:text-white shrink-0"
+                    >
+                        History
+                        <ChevronRight size={14} />
+                    </Link>
                 </div>
 
-                {/* Stats chips */}
-                <div className="relative mt-4 flex flex-wrap items-center gap-2">
-                    {individualSavingsTotal > 0 && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/20 px-2.5 py-1 text-[11px] text-amber-300">
-                            <AlertTriangle size={11} /> Individual savings active
+                <div className="mt-4 flex items-end justify-between gap-3">
+                    <button
+                        type="button"
+                        onClick={refreshWalletBalance}
+                        disabled={refreshingBalance}
+                        className="text-left group"
+                        aria-label="Refresh balance"
+                    >
+                        <p className="text-3xl font-bold tracking-tight leading-none">
+                            {balanceVisible ? (
+                                <>
+                                    <span className="text-2xl font-semibold">₦</span>
+                                    {formatCurrency(walletBalance)}
+                                </>
+                            ) : (
+                                '****'
+                            )}
+                        </p>
+                        <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-white/60 group-hover:text-white/80">
+                            <RefreshCw size={11} className={refreshingBalance ? 'animate-spin' : ''} />
+                            {refreshingBalance ? 'Updating…' : 'Tap to refresh'}
                         </span>
-                    )}
+                    </button>
+
+                    <Link
+                        href="/wallet"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-brand-navy px-4 py-2.5 text-sm font-bold text-white hover:bg-[#0a1458] transition-colors shrink-0"
+                    >
+                        <Plus size={16} strokeWidth={2.5} />
+                        Add Money
+                    </Link>
                 </div>
             </section>
 
-            {/* Quick Actions */}
-            <section className="rounded-3xl border border-slate-200 bg-white p-4">
-                <div className="grid grid-cols-4 gap-2">
-                    {quickActions.map(({ href, icon: Icon, label, bg, color, badge }) => (
-                        <Link key={label} href={href} className="group flex flex-col items-center gap-1.5 px-1">
-                            <div className="relative">
-                                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${bg} transition-all duration-150 group-active:scale-90`}>
-                                    <Icon size={20} className={color} />
-                                </div>
-                                {badge !== undefined && badge > 0 && (
-                                    <span className="absolute -right-1 -top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white">
-                                        {badge > 9 ? '9+' : badge}
-                                    </span>
-                                )}
+            {/* Three quick actions */}
+            <section className="rounded-3xl border border-slate-200 bg-white px-3 py-4">
+                <div className="grid grid-cols-3 gap-1">
+                    {quickActions.map(({ href, icon: Icon, label }) => (
+                        <Link
+                            key={label}
+                            href={href}
+                            className="group flex flex-col items-center gap-2 px-2 py-1"
+                        >
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-light text-brand-primary transition-transform group-active:scale-90">
+                                <Icon size={22} />
                             </div>
-                            <span className="text-center text-[10px] font-semibold leading-tight text-slate-600">{label}</span>
+                            <span className="text-center text-xs font-semibold text-brand-navy">{label}</span>
                         </Link>
                     ))}
                 </div>
             </section>
 
-            {/* Profile completion nudge card */}
-            {(() => {
-                const items = [
-                    {
-                        done: walletBalance > 0,
-                        icon: Wallet,
-                        label: 'Fund your wallet first',
-                        sub: 'Use your permanent account details to make your first deposit',
-                        href: '/wallet',
-                    },
-                    {
-                        done: !!profile?.bank_account,
-                        icon: Landmark,
-                        label: 'Link a bank account',
-                        sub: 'Required to receive your payout',
-                        href: '/settings?tab=bank',
-                    },
-                    {
-                        done: individualSavingsTotal > 0 || hasSavingsSchemes,
-                        icon: Target,
-                        label: 'Create your first savings goal',
-                        sub: 'Start your personal savings plan',
-                        href: '/savings',
-                    },
-                ];
-                const allDone = items.every((item) => item.done);
-                if (allDone) return null;
-                const completedCount = items.filter((item) => item.done).length;
-                return (
-                    <section className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
-                        <div className="mb-3 flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-bold text-brand-navy">Get started</p>
-                                <p className="text-[11px] text-brand-gray">{completedCount}/{items.length} done</p>
-                            </div>
-                            <div className="flex gap-1">
-                                {items.map((item, i) => (
-                                    <div key={i} className={`h-1.5 w-6 rounded-full ${item.done ? 'bg-brand-primary' : 'bg-slate-200'}`} />
-                                ))}
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            {items.map((item) => {
-                                const Icon = item.icon;
-                                return (
-                                    <Link
-                                        key={item.label}
-                                        href={item.href}
-                                        className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors ${item.done
-                                                ? 'border-emerald-100 bg-white/60 opacity-60 pointer-events-none'
-                                                : 'border-blue-100 bg-white hover:border-blue-200'
-                                            }`}
-                                    >
-                                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${item.done ? 'bg-emerald-50' : 'bg-brand-primary/10'
-                                            }`}>
-                                            {item.done
-                                                ? <CheckCircle2 size={15} className="text-emerald-600" />
-                                                : <Icon size={15} className="text-brand-primary" />
-                                            }
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className={`text-xs font-semibold ${item.done ? 'text-slate-400 line-through' : 'text-brand-navy'}`}>{item.label}</p>
-                                            <p className="text-[10px] text-brand-gray">{item.sub}</p>
-                                        </div>
-                                        {!item.done && <ChevronRight size={13} className="shrink-0 text-slate-300" />}
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </section>
-                );
-            })()}
-
-            <Link
-                href="/savings"
-                className="flex items-center justify-between rounded-2xl border border-blue-200 bg-blue-50/50 p-4 transition-colors hover:bg-blue-50"
-            >
-                <div>
-                    <p className="text-sm font-bold text-brand-navy">Grow your individual savings</p>
-                    <p className="mt-0.5 text-[11px] text-brand-gray">Create goals and fund them on your own schedule</p>
-                </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary">
-                    <ChevronRight size={16} className="text-white" />
-                </div>
-            </Link>
-
-            {/* Recent Activity */}
-            {transactions.length > 0 && (
-                <section>
-                    <div className="mb-2.5 flex items-center justify-between">
-                        <h2 className="text-sm font-bold text-brand-navy">Recent Activity</h2>
-                        <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-0.5 rounded-xl bg-slate-100 p-0.5">
-                                {(['all', 'contribution', 'payout'] as const).map((item) => (
-                                    <button
-                                        key={item}
-                                        onClick={() => setActivityFilter(item)}
-                                        className={`rounded-lg px-2 py-1 text-[10px] font-semibold capitalize transition-colors ${activityFilter === item ? 'bg-white text-brand-navy shadow-xs' : 'text-brand-gray'}`}
-                                    >
-                                        {item === 'all' ? 'All' : item === 'contribution' ? 'Sent' : 'Received'}
-                                    </button>
-                                ))}
-                            </div>
-                            <Link href="/activity" className="text-[11px] font-semibold text-brand-primary">See all</Link>
-                        </div>
+            {/* Setup — only while incomplete */}
+            {setupIncomplete && (
+                <section className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                        <p className="text-sm font-bold text-brand-navy">Get started</p>
+                        <p className="text-[11px] font-semibold text-brand-gray">{setupDone}/3</p>
                     </div>
-
-                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white divide-y divide-slate-100">
-                        {filteredActivity.length === 0 ? (
-                            <p className="p-4 text-sm text-brand-gray">No transactions found.</p>
-                        ) : (
-                            filteredActivity.slice(0, 3).map((tx) => {
-                                const isContributionLike = tx.type === 'contribution' || tx.type === 'individual_savings' || tx.type === 'bulk_contribution' || tx.type === 'passbook_activation';
-                                const txLabel = tx.type === 'contribution'
-                                    ? (tx.groups?.name ?? 'Group contribution')
-                                    : tx.type === 'payout'
-                                        ? (tx.groups?.name ? `${tx.groups.name} payout` : 'Payout')
-                                        : tx.type === 'individual_savings'
-                                            ? (tx.metadata?.goalName ? `Saved to ${tx.metadata.goalName}` : 'Individual savings')
-                                            : tx.type === 'bulk_contribution'
-                                                ? (Array.isArray(tx.metadata?.goalNames) && tx.metadata?.goalNames.length
-                                                    ? `Saved to ${tx.metadata.goalNames[0]}${tx.metadata.goalNames.length > 1 ? ` +${tx.metadata.goalNames.length - 1} more` : ''}`
-                                                    : 'Bulk savings payment')
-                                                : tx.type === 'wallet_funding'
-                                                    ? 'Wallet funding'
-                                                    : 'Passbook activation';
-                                return (
-                                    <div key={tx.id} className="flex items-center gap-3 px-4 py-3">
-                                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${isContributionLike ? 'bg-blue-50' : 'bg-emerald-50'}`}>
-                                            {isContributionLike ? <ArrowUpRight size={16} className="text-blue-600" /> : <ArrowDownLeft size={16} className="text-emerald-600" />}
-                                        </div>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate text-sm font-semibold text-brand-navy">{txLabel}</p>
-                                            <p className="text-[10px] text-brand-gray">
-                                                {new Date(tx.created_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className={`text-sm font-bold ${isContributionLike ? 'text-brand-navy' : 'text-emerald-600'}`}>
-                                                {(isContributionLike && tx.type !== 'wallet_funding') ? '-' : '+'}{formatCurrency(tx.amount)}
-                                            </p>
-                                            <p className="text-[10px] capitalize text-brand-gray">{tx.status}</p>
-                                        </div>
+                    <div className="space-y-1.5">
+                        {setupItems.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    className={`flex items-center gap-3 rounded-xl px-2.5 py-2.5 ${
+                                        item.done
+                                            ? 'opacity-50 pointer-events-none'
+                                            : 'hover:bg-brand-light/60'
+                                    }`}
+                                >
+                                    <div
+                                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                                            item.done ? 'bg-emerald-50' : 'bg-brand-light'
+                                        }`}
+                                    >
+                                        {item.done ? (
+                                            <CheckCircle2 size={15} className="text-emerald-600" />
+                                        ) : (
+                                            <Icon size={15} className="text-brand-primary" />
+                                        )}
                                     </div>
-                                );
-                            })
-                        )}
+                                    <p
+                                        className={`flex-1 text-sm font-semibold ${
+                                            item.done ? 'text-slate-400 line-through' : 'text-brand-navy'
+                                        }`}
+                                    >
+                                        {item.label}
+                                    </p>
+                                    {!item.done && <ChevronRight size={14} className="text-slate-300" />}
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </section>
+            )}
+
+            {/* Recent activity — simple list */}
+            {recentTx.length > 0 && (
+                <section>
+                    <div className="mb-2.5 flex items-center justify-between px-0.5">
+                        <h2 className="text-sm font-bold text-brand-navy">Recent</h2>
+                        <Link href="/activity" className="text-xs font-semibold text-brand-primary">
+                            See all
+                        </Link>
+                    </div>
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white divide-y divide-slate-100">
+                        {recentTx.map((tx) => {
+                            const isOut =
+                                tx.type === 'contribution' ||
+                                tx.type === 'individual_savings' ||
+                                tx.type === 'bulk_contribution' ||
+                                tx.type === 'passbook_activation';
+                            return (
+                                <div key={tx.id} className="flex items-center gap-3 px-4 py-3">
+                                    <div
+                                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                                            isOut ? 'bg-brand-light' : 'bg-emerald-50'
+                                        }`}
+                                    >
+                                        {isOut ? (
+                                            <ArrowUpRight size={16} className="text-brand-primary" />
+                                        ) : (
+                                            <ArrowDownLeft size={16} className="text-emerald-600" />
+                                        )}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-sm font-semibold text-brand-navy">{txLabel(tx)}</p>
+                                        <p className="text-[10px] text-brand-gray">
+                                            {new Date(tx.created_at).toLocaleDateString('en-NG', {
+                                                day: 'numeric',
+                                                month: 'short',
+                                            })}
+                                        </p>
+                                    </div>
+                                    <p
+                                        className={`text-sm font-bold ${
+                                            isOut && tx.type !== 'wallet_funding'
+                                                ? 'text-brand-navy'
+                                                : 'text-emerald-600'
+                                        }`}
+                                    >
+                                        {isOut && tx.type !== 'wallet_funding' ? '-' : '+'}
+                                        {formatCurrency(tx.amount)}
+                                    </p>
+                                </div>
+                            );
+                        })}
                     </div>
                 </section>
             )}

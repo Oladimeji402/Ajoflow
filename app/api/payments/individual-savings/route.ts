@@ -4,6 +4,13 @@ import { badRequestResponse, requireUser, serverErrorResponse } from "@/lib/api/
 import { generatePassbookSlots } from "@/lib/ajo-schedule";
 import type { PassbookFrequency } from "@/lib/ajo-schedule";
 import { upsertSavingsPaymentToGoogleSheet } from "@/lib/google-sheets-sync";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  RATE_LIMITS,
+  enforceRateLimit,
+  getClientIp,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   goalId: z.string().uuid("goalId must be a UUID"),
@@ -28,6 +35,13 @@ export async function POST(request: Request) {
   try {
     const auth = await requireUser();
     if (auth.error || !auth.user) return auth.error!;
+
+    const ip = getClientIp(request);
+    const limited = await enforceRateLimit(
+      `money-spend:individual:${auth.user.id}:${ip}`,
+      RATE_LIMITS.moneySpend,
+    );
+    if (!limited.ok) return rateLimitResponse(limited.retryAfterSeconds);
 
     // Gate: passbook must be activated.
     const { data: profile } = await auth.supabase
@@ -127,7 +141,8 @@ export async function POST(request: Request) {
     }
     const nowIso = new Date().toISOString();
     const requestId = generateRequestId();
-    const { data: rpcResult, error: rpcError } = await auth.supabase.rpc("pay_individual_savings_from_wallet", {
+    const adminSupabase = createSupabaseAdminClient();
+    const { data: rpcResult, error: rpcError } = await adminSupabase.rpc("pay_individual_savings_from_wallet", {
       p_user_id: auth.user.id,
       p_goal_id: goalId,
       p_amount: amount,

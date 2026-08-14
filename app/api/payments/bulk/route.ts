@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { badRequestResponse, requireUser, serverErrorResponse } from "@/lib/api/auth";
 import { generatePassbookSlots } from "@/lib/ajo-schedule";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  RATE_LIMITS,
+  enforceRateLimit,
+  getClientIp,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 const allocationSchema = z.object({
   targetType: z.enum(["individual_goal"]),
@@ -35,6 +42,13 @@ export async function POST(request: Request) {
   try {
     const auth = await requireUser();
     if (auth.error || !auth.user) return auth.error!;
+
+    const ip = getClientIp(request);
+    const limited = await enforceRateLimit(
+      `money-spend:bulk:${auth.user.id}:${ip}`,
+      RATE_LIMITS.moneySpend,
+    );
+    if (!limited.ok) return rateLimitResponse(limited.retryAfterSeconds);
 
     // Gate: passbook must be activated for bulk pay.
     const { data: profile } = await auth.supabase
@@ -145,7 +159,8 @@ export async function POST(request: Request) {
       };
     });
 
-    const { data: rpcResult, error: rpcError } = await auth.supabase.rpc("pay_bulk_from_wallet", {
+    const adminSupabase = createSupabaseAdminClient();
+    const { data: rpcResult, error: rpcError } = await adminSupabase.rpc("pay_bulk_from_wallet", {
       p_user_id: auth.user.id,
       p_total_amount: totalAmount,
       p_reference: reference,

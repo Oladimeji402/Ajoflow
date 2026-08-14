@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { badRequestResponse, requireUser, serverErrorResponse } from "@/lib/api/auth";
 import { upsertSavingsPaymentToGoogleSheet } from "@/lib/google-sheets-sync";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  RATE_LIMITS,
+  enforceRateLimit,
+  getClientIp,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 const schema = z.object({
   schemeId: z.string().uuid("schemeId must be a valid UUID"),
@@ -22,6 +29,13 @@ export async function POST(request: Request) {
   try {
     const auth = await requireUser();
     if (auth.error || !auth.user) return auth.error!;
+
+    const ip = getClientIp(request);
+    const limited = await enforceRateLimit(
+      `money-spend:general:${auth.user.id}:${ip}`,
+      RATE_LIMITS.moneySpend,
+    );
+    if (!limited.ok) return rateLimitResponse(limited.retryAfterSeconds);
 
     // Gate: passbook must be activated.
     const { data: profile } = await auth.supabase
@@ -61,7 +75,8 @@ export async function POST(request: Request) {
 
     const reference = generateReference();
     const requestId = generateRequestId();
-    const { data: rpcResult, error: rpcError } = await auth.supabase.rpc("pay_general_savings_from_wallet", {
+    const adminSupabase = createSupabaseAdminClient();
+    const { data: rpcResult, error: rpcError } = await adminSupabase.rpc("pay_general_savings_from_wallet", {
       p_user_id: auth.user.id,
       p_scheme_id: schemeId,
       p_amount: amount,

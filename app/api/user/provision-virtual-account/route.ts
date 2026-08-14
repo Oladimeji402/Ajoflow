@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { badRequestResponse, requireUser, serverErrorResponse } from "@/lib/api/auth";
 import { createMonicreditVirtualAccount, MonicreditHttpError } from "@/lib/monicredit";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  RATE_LIMITS,
+  enforceRateLimit,
+  getClientIp,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 function splitName(fullName: string) {
   const normalized = fullName.trim().replace(/\s+/g, " ");
@@ -35,13 +42,20 @@ function normalizePhoneForMonicredit(phone: string) {
   return digits;
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   let normalizedPhone = "";
   let phoneSource = "";
   
   try {
     const auth = await requireUser();
     if (auth.error || !auth.user) return auth.error!;
+
+    const ip = getClientIp(request);
+    const limited = await enforceRateLimit(
+      `provision-va:${auth.user.id}:${ip}`,
+      RATE_LIMITS.provisionVa,
+    );
+    if (!limited.ok) return rateLimitResponse(limited.retryAfterSeconds);
     
     console.log(`[provision-virtual-account] Starting provisioning for user ${auth.user.id}`);
 
@@ -144,7 +158,8 @@ export async function POST() {
       return serverErrorResponse(new Error("Monicredit virtual account response is incomplete."));
     }
 
-    const { error: updateError } = await auth.supabase
+    const adminSupabase = createSupabaseAdminClient();
+    const { error: updateError } = await adminSupabase
       .from("profiles")
       .update({
         phone: profilePhone || authPhone || null,

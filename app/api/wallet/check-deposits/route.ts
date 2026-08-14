@@ -3,9 +3,15 @@ import { badRequestResponse, requireUser, serverErrorResponse } from "@/lib/api/
 import { getMonicreditBearerToken, getMonicreditWalletTransactions } from "@/lib/monicredit";
 import { getPendingPaymentExpiryDate, markWalletFundingSuccess } from "@/lib/payments";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  RATE_LIMITS,
+  enforceRateLimit,
+  getClientIp,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 const MIN_SYNC_INTERVAL_MS = 30_000;
-const MIN_DEPOSIT_NAIRA = 100; // Lower threshold to accept amounts after provider charges
+const MIN_DEPOSIT_NAIRA = 100; // Credited amount after provider charges may be under send amount
 
 function toAmountNaira(value: number | string | unknown) {
   const parsed = Number(value ?? 0);
@@ -22,10 +28,17 @@ function buildReference(transaction: { tracking_reference?: string; id?: number 
   return null;
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const auth = await requireUser();
     if (auth.error || !auth.user) return auth.error!;
+
+    const ip = getClientIp(request);
+    const limited = await enforceRateLimit(
+      `wallet-check:${auth.user.id}:${ip}`,
+      RATE_LIMITS.walletCheck,
+    );
+    if (!limited.ok) return rateLimitResponse(limited.retryAfterSeconds);
 
     const { data: profile, error: profileError } = await auth.supabase
       .from("profiles")
@@ -205,7 +218,7 @@ export async function POST() {
     }
 
     const syncedAt = new Date().toISOString();
-    await auth.supabase
+    await supabaseAdmin
       .from("profiles")
       .update({ monicredit_last_synced_at: syncedAt })
       .eq("id", auth.user.id);

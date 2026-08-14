@@ -18,7 +18,7 @@ type UseRealtimeSubscriptionOptions = {
   tables?: string[];
 };
 
-const DEFAULT_TABLES = ['contributions', 'payment_records', 'payouts', 'profiles', 'groups'];
+const DEFAULT_TABLES = ['contributions', 'payment_records', 'payouts', 'profiles'];
 const BACKOFF_BASE_MS = 1_000;
 const BACKOFF_MAX_MS = 30_000;
 
