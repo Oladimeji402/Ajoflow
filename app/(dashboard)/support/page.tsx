@@ -92,20 +92,46 @@ export default function SupportPage() {
             // Upload files to Supabase storage (if any)
             let attachmentUrls: string[] = [];
             if (files.length > 0) {
-                const formData = new FormData();
-                files.forEach(file => formData.append('files', file));
-
-                const uploadRes = await fetch('/api/support/upload', {
+                const issueRes = await fetch('/api/support/upload', {
                     method: 'POST',
-                    body: formData,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'issue',
+                        files: files.map((file) => ({
+                            contentType: file.type,
+                            fileSize: file.size,
+                        })),
+                    }),
                 });
 
-                if (!uploadRes.ok) {
+                if (!issueRes.ok) {
                     throw new Error('Failed to upload attachments');
                 }
 
-                const uploadData = await uploadRes.json();
-                attachmentUrls = uploadData.data?.urls || [];
+                const issueData = await issueRes.json();
+                const uploads = Array.isArray(issueData.data?.uploads) ? issueData.data.uploads : [];
+                if (uploads.length !== files.length) {
+                    throw new Error('Failed to prepare attachment uploads');
+                }
+
+                const { putFileToSignedUrl } = await import('@/lib/client-signed-upload');
+                const paths: string[] = [];
+                for (let i = 0; i < files.length; i += 1) {
+                    const upload = uploads[i];
+                    await putFileToSignedUrl(upload.signedUrl, files[i]!);
+                    paths.push(upload.path);
+                }
+
+                const completeRes = await fetch('/api/support/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'complete', paths }),
+                });
+                if (!completeRes.ok) {
+                    throw new Error('Failed to finalize attachments');
+                }
+                const completeData = await completeRes.json();
+                attachmentUrls = completeData.data?.urls || [];
             }
 
             // Create support ticket

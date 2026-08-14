@@ -28,25 +28,16 @@ async function buildBulkTargetsSummary(reference: string, supabase: Awaited<Retu
 
   if (!allocations?.length) return "your selected savings targets";
 
-  const groupIds = allocations.filter((a) => a.target_type === "group").map((a) => a.target_id);
   const goalIds = allocations.filter((a) => a.target_type === "individual_goal").map((a) => a.target_id);
 
-  const [groupsRes, goalsRes] = await Promise.all([
-    groupIds.length
-      ? supabase.from("groups").select("id, name").in("id", groupIds)
-      : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
-    goalIds.length
-      ? supabase.from("individual_savings_goals").select("id, name").in("id", goalIds)
-      : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
-  ]);
+  const goalsRes = goalIds.length
+    ? await supabase.from("individual_savings_goals").select("id, name").in("id", goalIds)
+    : { data: [] as Array<{ id: string; name: string }> };
 
-  const groupNameById = new Map((groupsRes.data ?? []).map((g) => [g.id, g.name]));
   const goalNameById = new Map((goalsRes.data ?? []).map((g) => [g.id, g.name]));
 
   const labels = allocations.map((a) => {
-    const name = a.target_type === "group"
-      ? (groupNameById.get(a.target_id) ?? "Group")
-      : (goalNameById.get(a.target_id) ?? "Savings goal");
+    const name = goalNameById.get(a.target_id) ?? "Savings goal";
     const amount = `NGN ${Number(a.allocated_amount).toLocaleString("en-NG")}`;
     return `${name} (${amount})`;
   });
@@ -144,18 +135,12 @@ export async function GET(request: Request) {
       }
 
       if (!result.idempotent) {
-        const { data: group } = await auth.supabase
-          .from("groups")
-          .select("name")
-          .eq("id", paymentRecord.group_id)
-          .maybeSingle();
-
         await auth.supabase.from("notifications").insert({
           user_id: auth.user.id,
           type: "payment_success",
-          title: "Contribution confirmed",
-          body: `Your contribution to ${group?.name ?? "your group"} was verified successfully. Reference: ${reference}.`,
-          metadata: { reference, amount: paymentRecord.amount, groupId: paymentRecord.group_id },
+          title: "Payment confirmed",
+          body: `Your payment was verified successfully. Reference: ${reference}.`,
+          metadata: { reference, amount: paymentRecord.amount },
         });
       }
 

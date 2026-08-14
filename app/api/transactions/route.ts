@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 
     let query = auth.supabase
       .from("payment_records")
-      .select("*, groups:group_id(id, name)", { count: "exact" })
+      .select("*", { count: "exact" })
       .eq("user_id", auth.user.id)
       .order("created_at", { ascending: false })
       .range((page - 1) * pageSize, page * pageSize - 1);

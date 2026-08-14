@@ -1,104 +1,116 @@
-import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getPublicObjectUrl, issueSignedUpload } from "@/lib/storage-signed-upload";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/jpg", "application/pdf"]);
+const BUCKET_NAME = "support-attachments";
+const MAX_FILES = 3;
+
+const fileMetaSchema = z.object({
+  contentType: z.string().min(1),
+  fileSize: z.number().int().positive(),
+});
+
+const issueSchema = z.object({
+  action: z.literal("issue"),
+  files: z.array(fileMetaSchema).min(1).max(MAX_FILES),
+});
+
+const completeSchema = z.object({
+  action: z.literal("complete"),
+  paths: z.array(z.string().min(1)).min(1).max(MAX_FILES),
+});
+
+const bodySchema = z.discriminatedUnion("action", [issueSchema, completeSchema]);
 
 export async function POST(request: Request) {
-    try {
-        const supabase = await createSupabaseServerClient();
-        const {
-            data: { user },
-        } = await supabase.auth.getUser();
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-        if (!user) {
-            return NextResponse.json(
-                { error: 'Please log in to upload files.' },
-                { status: 401 }
-            );
-        }
-
-        const formData = await request.formData();
-        const files = formData.getAll('files') as File[];
-
-        if (files.length === 0) {
-            return NextResponse.json(
-                { error: 'No files provided' },
-                { status: 400 }
-            );
-        }
-
-        if (files.length > 3) {
-            return NextResponse.json(
-                { error: 'Maximum 3 files allowed' },
-                { status: 400 }
-            );
-        }
-
-        // Validate files
-        for (const file of files) {
-            if (!ALLOWED_TYPES.includes(file.type)) {
-                return NextResponse.json(
-                    { error: `File type ${file.type} not allowed. Only JPG, PNG, and PDF are supported.` },
-                    { status: 400 }
-                );
-            }
-
-            if (file.size > MAX_FILE_SIZE) {
-                return NextResponse.json(
-                    { error: `File ${file.name} exceeds 5MB limit` },
-                    { status: 400 }
-                );
-            }
-        }
-
-        const uploadedUrls: string[] = [];
-
-        // Upload each file to Supabase storage
-        for (const file of files) {
-            const fileName = `${user.id}/${Date.now()}-${file.name}`;
-            const buffer = await file.arrayBuffer();
-
-            const { data, error } = await supabase.storage
-                .from('support-attachments')
-                .upload(fileName, buffer, {
-                    contentType: file.type,
-                    cacheControl: '3600',
-                    upsert: false,
-                });
-
-            if (error) {
-                console.error('Upload error:', error);
-                // If this is the first file and it fails, return error
-                // If subsequent files fail, just log and continue
-                if (uploadedUrls.length === 0) {
-                    return NextResponse.json(
-                        { error: 'Failed to upload file. Please ensure the storage bucket is configured.' },
-                        { status: 500 }
-                    );
-                }
-                continue;
-            }
-
-            // Get public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('support-attachments')
-                .getPublicUrl(data.path);
-
-            uploadedUrls.push(publicUrl);
-        }
-
-        return NextResponse.json({
-            data: {
-                urls: uploadedUrls,
-            },
-            message: `${uploadedUrls.length} file(s) uploaded successfully`,
-        });
-    } catch (error) {
-        console.error('POST /api/support/upload error:', error);
-        return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Failed to upload files' },
-            { status: 500 }
-        );
+    if (!user) {
+      return NextResponse.json({ error: "Please log in to upload files." }, { status: 401 });
     }
+
+    const raw = await request.json().catch(() => null);
+    const parsed = bodySchema.safeParse(raw);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request." },
+        { status: 400 },
+      );
+    }
+
+    const admin = createSupabaseAdminClient();
+    const { error: bucketError } = await admin.storage.createBucket(BUCKET_NAME, {
+      public: true,
+      fileSizeLimit: MAX_FILE_SIZE,
+      allowedMimeTypes: [...ALLOWED_TYPES],
+    });
+    if (bucketError && !bucketError.message.includes("already exists")) {
+      return NextResponse.json(
+        { error: "Failed to upload file. Please ensure the storage bucket is configured." },
+        { status: 500 },
+      );
+    }
+
+    if (parsed.data.action === "issue") {
+      for (const file of parsed.data.files) {
+        if (!ALLOWED_TYPES.has(file.contentType)) {
+          return NextResponse.json(
+            { error: `File type ${file.contentType} not allowed. Only JPG, PNG, and PDF are supported.` },
+            { status: 400 },
+          );
+        }
+        if (file.fileSize > MAX_FILE_SIZE) {
+          return NextResponse.json({ error: "A file exceeds the 5MB limit." }, { status: 400 });
+        }
+      }
+
+      const uploads = [];
+      for (const file of parsed.data.files) {
+        const ext =
+          file.contentType === "application/pdf"
+            ? "pdf"
+            : file.contentType === "image/png"
+              ? "png"
+              : "jpg";
+        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+        const signed = await issueSignedUpload({ bucket: BUCKET_NAME, path });
+        uploads.push({
+          path: signed.path,
+          signedUrl: signed.signedUrl,
+          token: signed.token,
+          contentType: file.contentType,
+        });
+      }
+
+      return NextResponse.json({ data: { uploads } });
+    }
+
+    // complete — return public URLs for ticket attachments (schema stores URL strings)
+    const urls: string[] = [];
+    for (const path of parsed.data.paths) {
+      if (!path.startsWith(`${user.id}/`)) {
+        return NextResponse.json({ error: "Invalid attachment path." }, { status: 400 });
+      }
+      urls.push(getPublicObjectUrl(BUCKET_NAME, path));
+    }
+
+    return NextResponse.json({
+      data: { urls },
+      message: `${urls.length} file(s) uploaded successfully`,
+    });
+  } catch (error) {
+    console.error("POST /api/support/upload error:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to upload files" },
+      { status: 500 },
+    );
+  }
 }

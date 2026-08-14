@@ -128,28 +128,7 @@ export async function markContributionPaymentSuccess(params: MarkPaymentSuccessP
     .eq("id", paymentRecord.user_id)
     .maybeSingle();
 
-  const { data: group } = await supabase
-    .from("groups")
-    .select("id, name, whatsapp_group_phone, created_by")
-    .eq("id", paymentRecord.group_id)
-    .maybeSingle();
-
-  let adminPhone: string | null = null;
-  if (group?.created_by) {
-    const { data: adminProfile } = await supabase
-      .from("profiles")
-      .select("phone")
-      .eq("id", group.created_by)
-      .maybeSingle();
-    adminPhone = adminProfile?.phone ?? null;
-  }
-
-  const recipients = new Set<string>();
-  if (profile?.phone) recipients.add(profile.phone);
-  if (group?.whatsapp_group_phone) recipients.add(group.whatsapp_group_phone);
-  if (adminPhone) recipients.add(adminPhone);
-
-  const recipientPhones = Array.from(recipients);
+  const recipientPhones = profile?.phone ? [profile.phone] : [];
   const metadataRecord = typeof paymentRecord.metadata === "object" && paymentRecord.metadata ? paymentRecord.metadata : {};
   const cycleNumber = String((metadataRecord as Record<string, unknown>).cycleNumber ?? "1");
   const paidAtDate = new Date(paidAtIso).toISOString().slice(0, 10);
@@ -159,7 +138,7 @@ export async function markContributionPaymentSuccess(params: MarkPaymentSuccessP
     void sendGroupReceipt(recipientPhones, {
       memberName: profile?.name ?? "Unknown",
       amount: `NGN ${Number(paymentRecord.amount).toLocaleString("en-NG")}`,
-      groupName: group?.name ?? "Unknown",
+      groupName: "AjoFlow",
       cycle: cycleNumber,
       date: paidAtDate,
     }).catch(() => {
@@ -222,19 +201,6 @@ export async function markContributionPaymentTerminalStatus(params: MarkPaymentT
 
   if (paymentUpdateError) {
     throw new Error(paymentUpdateError.message);
-  }
-
-  if (paymentRecord.contribution_id) {
-    const { error: contributionUpdateError } = await supabase
-      .from("contributions")
-      .update({
-        status: params.status,
-      })
-      .eq("id", paymentRecord.contribution_id);
-
-    if (contributionUpdateError) {
-      throw new Error(contributionUpdateError.message);
-    }
   }
 
   const now = new Date().toISOString();
@@ -649,34 +615,11 @@ export async function markBulkPaymentSuccess(params: {
           .update({ status: "success", processed_at: now })
           .eq("id", alloc.id);
 
-      } else if (alloc.target_type === "group") {
-        const { data: group } = await supabase
-          .from("groups")
-          .select("id, name, current_cycle")
-          .eq("id", alloc.target_id)
-          .maybeSingle();
-
-        await supabase.from("passbook_entries").upsert(
-          {
-            user_id: alloc.user_id,
-            entry_type: "group_contribution",
-            source_id: parentRecord.id,
-            source_table: "payment_records",
-            group_id: alloc.target_id,
-            amount: alloc.allocated_amount,
-            direction: "debit",
-            status: "success",
-            reference: `${params.reference}-alloc-${alloc.id}`,
-            period_label: `Round ${group?.current_cycle ?? 1}`,
-            description: `Group contribution — ${group?.name ?? "Unknown"}`,
-            happened_at: now,
-          },
-          { onConflict: "reference", ignoreDuplicates: true },
-        );
-
+      } else {
+        // Group allocations retired — mark failed.
         await supabase
           .from("payment_allocations")
-          .update({ status: "success", processed_at: now })
+          .update({ status: "failed", processed_at: now })
           .eq("id", alloc.id);
       }
     } catch (err) {
