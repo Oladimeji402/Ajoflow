@@ -130,7 +130,8 @@ export default function ForgotPasswordPage() {
                     <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.02em' }}>password?</span>
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                    Enter your email and we&apos;ll send a password reset OTP.
+                    Enter your AjoFlow email and we&apos;ll send a password reset OTP. This also resets access to the
+                    marketer portal if you use the same account.
                 </p>
             </div>
 

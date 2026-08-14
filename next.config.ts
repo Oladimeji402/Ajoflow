@@ -32,6 +32,11 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
+        source: "/marketer/become",
+        destination: `${marketerAppUrl}/become`,
+        permanent: false,
+      },
+      {
         source: "/marketer",
         destination: `${marketerAppUrl}/marketer`,
         permanent: false,

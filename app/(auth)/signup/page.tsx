@@ -226,7 +226,8 @@ function SignUpContent() {
                         <p className="mt-2 text-sm text-slate-500 max-w-xs mx-auto">
                             We sent a verification link to{' '}
                             <span className="font-semibold text-brand-navy">{pendingEmail}</span>.
-                            Click the link in that email to activate your account.
+                            Click the link in that email to activate your savings account.
+                            You can&apos;t sign in until that step is done.
                         </p>
                     </div>
                 </div>
@@ -342,14 +343,16 @@ function SignUpContent() {
 
                 <div className="space-y-1 w-full">
                     <Input
-                        label="Referral code (optional)"
+                        label="Marketer invited you? (optional)"
                         type="text"
                         autoComplete="off"
-                        placeholder="e.g. MK-ABC12345"
+                        placeholder="e.g. ADEOLA2026"
                         value={referralCode}
                         onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
                     />
-                    <p className="text-[11px] text-slate-400">Have a marketer code? Enter it here, or leave blank.</p>
+                    <p className="text-[11px] text-slate-400">
+                        Enter their code if a marketer referred you. Leave blank if none.
+                    </p>
                 </div>
 
                 <div className="space-y-3">
@@ -485,10 +488,10 @@ function SignUpContent() {
                 <p className="text-center text-sm text-slate-500">
                     Want to become a marketer?{' '}
                     <a
-                        href={`${getMarketerAppUrl()}/signup`}
+                        href={`${getMarketerAppUrl()}/become`}
                         className="font-semibold text-brand-navy hover:text-brand-accent transition-colors"
                     >
-                        Apply here
+                        Become a marketer
                     </a>
                 </p>
             </div>
