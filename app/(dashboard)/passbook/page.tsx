@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Loader2, Calendar, BookOpen, ArrowRight } from 'lucide-react';
+import { Calendar, BookOpen, ArrowRight } from 'lucide-react';
 import { useData } from '@/lib/hooks/useData';
 import { usePassbookFee } from '@/lib/hooks/usePassbookFee';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -194,8 +194,36 @@ export default function PassbookPage() {
 
     if (loading || passbookActivated === null) {
         return (
-            <div className="flex items-center justify-center gap-2 py-16 text-sm text-brand-gray">
-                <Loader2 size={16} className="animate-spin" /> Loading passbook...
+            <div className="mx-auto max-w-2xl space-y-5 animate-pulse">
+                <div>
+                    <div className="h-6 w-36 rounded bg-slate-200" />
+                    <div className="mt-2 h-3 w-64 rounded bg-slate-100" />
+                </div>
+                <div className="h-16 rounded-2xl bg-slate-100" />
+                <div className="flex gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1">
+                    {Array.from({ length: 3 }, (_, i) => (
+                        <div key={i} className="h-12 flex-1 rounded-xl bg-slate-100" />
+                    ))}
+                </div>
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                    <div className="border-b border-slate-100 bg-slate-50 px-3 py-3">
+                        <div className="flex gap-3">
+                            <div className="h-3 w-16 rounded bg-slate-200" />
+                            <div className="h-3 w-10 rounded bg-slate-200" />
+                            <div className="h-3 w-10 rounded bg-slate-200" />
+                            <div className="h-3 w-10 rounded bg-slate-200" />
+                            <div className="ml-auto h-3 w-14 rounded bg-slate-200" />
+                        </div>
+                    </div>
+                    {Array.from({ length: 5 }, (_, i) => (
+                        <div key={i} className="flex items-center gap-3 border-b border-slate-50 px-3 py-3 last:border-0">
+                            <div className="h-3.5 w-28 rounded bg-slate-100" />
+                            <div className="h-3 w-12 rounded bg-slate-50" />
+                            <div className="h-3 w-12 rounded bg-slate-50" />
+                            <div className="ml-auto h-3.5 w-16 rounded bg-slate-100" />
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }
