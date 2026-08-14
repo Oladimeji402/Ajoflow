@@ -24,7 +24,6 @@ import {
     Trash2,
     User,
     XCircle,
-    Bell,
     Handshake,
 } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -100,24 +99,24 @@ export default function SettingsPage() {
     const [mobileBankDropdownOpen, setMobileBankDropdownOpen] = useState(false);
     const mobileBankComboboxRef = useRef<HTMLDivElement>(null);
 
-    // Auto-focus the bank section when ?tab=bank is present in the URL
+    // Deep-link: ?tab=bank | profile
     useEffect(() => {
         if (typeof window === 'undefined') {
             return;
         }
 
         const params = new URLSearchParams(window.location.search);
-        if (params.get('tab') !== 'bank') {
-            return;
+        const tab = params.get('tab');
+        if (tab === 'bank') {
+            setMobileView('bank');
+            const timer = window.setTimeout(() => {
+                bankSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 400);
+            return () => window.clearTimeout(timer);
         }
-
-        setMobileView('bank');
-
-        const timer = window.setTimeout(() => {
-            bankSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 400);
-
-        return () => window.clearTimeout(timer);
+        if (tab === 'profile') {
+            setMobileView('profile');
+        }
     }, []);
 
     // Close bank combobox dropdowns when clicking outside
@@ -292,20 +291,13 @@ export default function SettingsPage() {
         return banks.find((b) => b.code === bankCode)?.name ?? null;
     }, [banks, bankCode]);
 
-    const canSave = useMemo(() => {
+    const canSaveProfile = useMemo(() => name.trim().length > 0, [name]);
+
+    const canSaveBank = useMemo(() => {
         const account = bankAccount.trim();
-        const hasAccount = account.length > 0;
-
-        if (!hasAccount) {
-            return name.trim().length > 0;
-        }
-
-        return name.trim().length > 0
-            && /^\d{10}$/.test(account)
-            && !!bankCode
-            && !!resolvedAccountName
-            && !isVerifyingAccount;
-    }, [bankAccount, bankCode, isVerifyingAccount, name, resolvedAccountName]);
+        if (!account) return true; // allow clearing bank details
+        return /^\d{10}$/.test(account) && !!bankCode && !!resolvedAccountName && !isVerifyingAccount;
+    }, [bankAccount, bankCode, isVerifyingAccount, resolvedAccountName]);
 
     const passwordChecks = useMemo(() => [
         { label: 'At least 8 characters', valid: newPassword.length >= 8 },
@@ -317,7 +309,10 @@ export default function SettingsPage() {
     const isNewPasswordStrong = passwordChecks.every((check) => check.valid);
     const passwordsMatch = newPassword.length > 0 && newPassword === confirmNewPassword;
 
-    const handleSave = async (e: React.FormEvent) => {
+    const handleSave = async (
+        e: React.FormEvent,
+        scope: 'profile' | 'bank' | 'all' = 'all',
+    ) => {
         e.preventDefault();
         if (!profileId) return;
 
@@ -325,15 +320,23 @@ export default function SettingsPage() {
         const hasAccount = trimmedAccount.length > 0;
         const normalizedPhone = normalizeNigeriaPhoneLocalInput(phone);
 
-        if (normalizedPhone && !isValidNigeriaPhoneLocal(normalizedPhone)) {
+        if ((scope === 'profile' || scope === 'all') && normalizedPhone && !isValidNigeriaPhoneLocal(normalizedPhone)) {
             notifyWarning(showToast, 'Enter a valid Nigerian mobile number (10 digits after +234).');
             return;
         }
 
-        if (hasAccount && !canSave) {
-            notifyWarning(showToast, 'Complete bank verification before saving account changes.');
+        if (scope === 'profile' && !canSaveProfile) {
+            notifyWarning(showToast, 'Add your name before saving.');
             return;
         }
+
+        if (scope === 'bank' && !canSaveBank) {
+            notifyWarning(showToast, 'Complete bank verification before saving payout details.');
+            return;
+        }
+
+        const includeBank = scope === 'bank' || (scope === 'all' && canSaveBank);
+        const includeProfile = scope === 'profile' || scope === 'all';
 
         setSaving(true);
         setError('');
@@ -344,24 +347,40 @@ export default function SettingsPage() {
                 ? banks.find((bank) => bank.code === bankCode)?.name ?? null
                 : null;
 
+            const updates: Record<string, string | null> = {};
+
+            if (includeProfile) {
+                updates.name = name.trim();
+                updates.phone = normalizedPhone ? formatNigeriaPhoneE164(normalizedPhone) : null;
+                updates.nin = verificationIdType === 'nin' ? (nin.trim() || null) : null;
+                updates.bvn = verificationIdType === 'bvn' ? (bvn.trim() || null) : null;
+            }
+
+            if (includeBank) {
+                updates.bank_account = hasAccount ? trimmedAccount : null;
+                updates.bank_name = selectedBankName;
+                updates.bank_account_name = hasAccount ? resolvedAccountName : null;
+            }
+
+            if (Object.keys(updates).length === 0) {
+                notifyWarning(showToast, 'Nothing to save yet.');
+                return;
+            }
+
             const { error: updateError } = await supabase
                 .from('profiles')
-                .update({
-                    name: name.trim(),
-                    phone: normalizedPhone ? formatNigeriaPhoneE164(normalizedPhone) : null,
-                    nin: verificationIdType === 'nin' ? (nin.trim() || null) : null,
-                    bvn: verificationIdType === 'bvn' ? (bvn.trim() || null) : null,
-                    bank_account: hasAccount ? trimmedAccount : null,
-                    bank_name: selectedBankName,
-                    bank_account_name: hasAccount ? resolvedAccountName : null,
-                })
+                .update(updates)
                 .eq('id', profileId);
 
             if (updateError) {
                 throw new Error(updateError.message);
             }
 
-            notifySuccess(showToast, 'Settings updated successfully.');
+            if (scope === 'all' && hasAccount && !canSaveBank) {
+                notifySuccess(showToast, 'Profile saved. Finish bank verification to update payout details.');
+            } else {
+                notifySuccess(showToast, 'Settings updated successfully.');
+            }
         } catch (err) {
             notifyError(showToast, err, 'Failed to update settings.');
         } finally {
@@ -519,10 +538,24 @@ export default function SettingsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-80 grid place-items-center text-brand-gray">
-                <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Loader2 className="animate-spin" size={16} />
-                    Loading settings...
+            <div className="mx-auto max-w-2xl space-y-4 animate-pulse">
+                <div className="md:hidden overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                    <div className="border-b border-slate-100 px-5 py-4">
+                        <div className="h-3 w-36 rounded bg-slate-200" />
+                    </div>
+                    {Array.from({ length: 6 }, (_, i) => (
+                        <div key={i} className="flex items-center justify-between border-b border-slate-100 px-5 py-4 last:border-0">
+                            <div className="space-y-2">
+                                <div className="h-3.5 w-28 rounded bg-slate-200" />
+                                <div className="h-3 w-40 rounded bg-slate-100" />
+                            </div>
+                            <div className="h-4 w-4 rounded bg-slate-100" />
+                        </div>
+                    ))}
+                </div>
+                <div className="hidden space-y-4 md:block">
+                    <div className="h-48 rounded-2xl bg-slate-100" />
+                    <div className="h-32 rounded-2xl bg-slate-100" />
                 </div>
             </div>
         );
@@ -540,7 +573,7 @@ export default function SettingsPage() {
                         <button onClick={() => setMobileView('profile')} className="w-full px-5 py-4 border-b border-slate-100 flex items-center justify-between text-left hover:bg-slate-50">
                             <div>
                                 <p className="text-sm font-semibold text-brand-navy">My Profile</p>
-                                <p className="text-xs text-slate-500">Name, phone number</p>
+                                <p className="text-xs text-slate-500">Phone, NIN / BVN</p>
                             </div>
                             <ChevronRight size={16} className="text-slate-400" />
                         </button>
@@ -604,12 +637,24 @@ export default function SettingsPage() {
                             <ChevronRight size={16} className="text-slate-400" />
                         </a>
 
-                        <button onClick={() => setMobileView('danger')} className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-red-50">
+                        <button onClick={() => setMobileView('danger')} className="w-full px-5 py-4 border-b border-slate-100 flex items-center justify-between text-left hover:bg-red-50">
                             <div>
                                 <p className="text-sm font-semibold text-red-700">Delete Account</p>
                                 <p className="text-xs text-red-500">Permanent action</p>
                             </div>
                             <ChevronRight size={16} className="text-red-300" />
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => void handleSignOut()}
+                            className="w-full px-5 py-4 flex items-center justify-between text-left hover:bg-red-50"
+                        >
+                            <div>
+                                <p className="text-sm font-semibold text-red-600">Sign Out</p>
+                                <p className="text-xs text-slate-500">End this session</p>
+                            </div>
+                            <LogOut size={16} className="text-red-300" />
                         </button>
                     </div>
                 ) : (
@@ -619,7 +664,7 @@ export default function SettingsPage() {
                         </button>
 
                         {mobileView === 'profile' && (
-                            <form onSubmit={handleSave} className="space-y-4">
+                            <form onSubmit={(e) => void handleSave(e, 'profile')} className="space-y-4">
                                 <h3 className="font-semibold text-brand-navy">Identity and Contact</h3>
                                 <div>
                                     <label className="block text-xs font-semibold text-brand-gray mb-1">Full Name</label>
@@ -699,12 +744,12 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                                 
-                                <button disabled={saving || !canSave} className="w-full rounded-xl bg-brand-primary text-white px-4 py-2.5 text-sm font-semibold disabled:opacity-60 hover:bg-brand-primary-hover">{saving ? 'Saving...' : 'Save'}</button>
+                                <button disabled={saving || !canSaveProfile} className="w-full rounded-xl bg-brand-primary text-white px-4 py-2.5 text-sm font-semibold disabled:opacity-60 hover:bg-brand-primary-hover">{saving ? 'Saving...' : 'Save'}</button>
                             </form>
                         )}
 
                         {mobileView === 'bank' && (
-                            <form onSubmit={handleSave} className="space-y-4">
+                            <form onSubmit={(e) => void handleSave(e, 'bank')} className="space-y-4">
                                 <h3 className="font-semibold text-brand-navy">Bank Account</h3>
                                 <div>
                                     <label className="block text-xs font-semibold text-brand-gray mb-1">Bank</label>
@@ -739,7 +784,7 @@ export default function SettingsPage() {
                                                         />
                                                     </div>
                                                 </div>
-                                                <ul className="max-h-48 overflow-y-auto">
+                                                <ul className="max-h-40 overflow-y-auto overscroll-contain pb-1">
                                                     {mobileFilteredBanks.length === 0 && (
                                                         <li className="px-3 py-2 text-xs text-slate-400">No bank found</li>
                                                     )}
@@ -804,7 +849,7 @@ export default function SettingsPage() {
                                     )}
                                     {!isVerifyingAccount && !!verificationError && <span className="inline-flex items-center gap-1.5 font-medium text-red-600"><XCircle size={13} />{verificationError}</span>}
                                 </div>
-                                <button disabled={saving || !canSave} className="w-full rounded-xl bg-brand-primary text-white px-4 py-2.5 text-sm font-semibold disabled:opacity-60 hover:bg-brand-primary-hover">{saving ? 'Saving...' : 'Save'}</button>
+                                <button disabled={saving || !canSaveBank} className="w-full rounded-xl bg-brand-primary text-white px-4 py-2.5 text-sm font-semibold disabled:opacity-60 hover:bg-brand-primary-hover">{saving ? 'Saving...' : 'Save'}</button>
                             </form>
                         )}
 
@@ -844,6 +889,16 @@ export default function SettingsPage() {
                                         <button type="button" onClick={() => setShowConfirmPassword((value) => !value)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-navy">{showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>
                                     </div>
                                 </div>
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-xs text-slate-600">
+                                    <p className="font-semibold text-brand-navy">Password requirements</p>
+                                    <div className="mt-2 grid gap-1">
+                                        {passwordChecks.map((check) => (
+                                            <span key={check.label} className={check.valid ? 'text-emerald-700' : 'text-slate-500'}>
+                                                {check.valid ? '✓' : '•'} {check.label}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
                                 <button type="submit" disabled={passwordChanging || !passwordsMatch || !isNewPasswordStrong} className="w-full rounded-xl bg-brand-primary text-white px-4 py-2.5 text-sm font-semibold disabled:opacity-60 hover:bg-brand-primary-hover">{passwordChanging ? 'Updating...' : 'Update password'}</button>
                             </form>
                         )}
@@ -866,20 +921,7 @@ export default function SettingsPage() {
                 )}
             </section>
 
-            <form onSubmit={handleSave} className="hidden md:block bg-white border border-slate-200 rounded-2xl p-5 space-y-5">
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 flex items-center justify-between">
-                    <div className="inline-flex items-center gap-2">
-                        <Bell size={15} className="text-brand-gray" />
-                        <div>
-                            <p className="text-sm font-semibold text-brand-navy">Alerts</p>
-                            <p className="text-xs text-slate-500">Open your notifications feed from settings.</p>
-                        </div>
-                    </div>
-                    <Link href="/notifications" className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-brand-navy hover:bg-slate-100">
-                        Open <ChevronRight size={13} />
-                    </Link>
-                </div>
-
+            <form onSubmit={(e) => void handleSave(e, 'all')} className="hidden md:block bg-white border border-slate-200 rounded-2xl p-5 space-y-5">
                 <div className="flex items-center gap-2">
                     <User size={16} className="text-brand-gray" />
                     <h2 className="font-semibold text-brand-navy">My Profile</h2>
@@ -1121,13 +1163,41 @@ export default function SettingsPage() {
                 </div>
 
                 <button
-                    disabled={saving || !canSave}
+                    disabled={saving || !canSaveProfile}
                     className="w-full rounded-xl bg-brand-primary text-white px-4 py-2.5 text-sm font-semibold disabled:opacity-60 inline-flex items-center justify-center gap-2 hover:bg-brand-primary-hover transition-colors"
                 >
                     <Save size={14} />
                     {saving ? 'Saving...' : 'Save changes'}
                 </button>
+                {!canSaveBank && bankAccount.trim().length > 0 && (
+                    <p className="text-xs text-amber-700">
+                        Profile and verification will save. Finish bank name verification to update payout details.
+                    </p>
+                )}
             </form>
+
+            <section className="hidden md:block rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                        href="/support"
+                        className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-brand-navy hover:bg-slate-50"
+                    >
+                        Get help
+                    </Link>
+                    <Link
+                        href="/support/my-tickets"
+                        className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-brand-navy hover:bg-slate-50"
+                    >
+                        My tickets
+                    </Link>
+                    <Link
+                        href="/notifications"
+                        className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-brand-navy hover:bg-slate-50"
+                    >
+                        Alerts
+                    </Link>
+                </div>
+            </section>
 
             <section className="hidden md:grid gap-4 lg:grid-cols-2">
                 <form onSubmit={handleChangeEmail} className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
