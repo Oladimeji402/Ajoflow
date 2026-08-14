@@ -143,8 +143,10 @@ export default function NewSavingsGoalPage() {
                 <p className="text-xs text-brand-gray">We will pre-fill the dates and frequency for you. You can also skip and enter manually below.</p>
 
                 {loadingPeriods ? (
-                    <div className="flex items-center gap-2 py-4 text-sm text-brand-gray">
-                        <Loader2 size={14} className="animate-spin" /> Loading occasions...
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 animate-pulse">
+                        {Array.from({ length: 6 }, (_, i) => (
+                            <div key={i} className="h-20 rounded-xl border border-slate-100 bg-slate-50" />
+                        ))}
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

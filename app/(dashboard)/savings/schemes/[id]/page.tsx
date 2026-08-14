@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Calendar, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar } from 'lucide-react';
 import { useData } from '@/lib/hooks/useData';
 
 type Deposit = {
@@ -45,8 +45,24 @@ export default function SchemeDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-16 text-sm text-brand-gray">
-        <Loader2 size={16} className="animate-spin" />
+      <div className="mx-auto max-w-3xl space-y-4 animate-pulse">
+        <div className="h-3 w-16 rounded bg-slate-100" />
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+          <div className="h-5 w-48 rounded bg-slate-200" />
+          <div className="h-3 w-32 rounded bg-slate-100" />
+          <div className="flex gap-4">
+            <div className="h-3 w-24 rounded bg-slate-50" />
+            <div className="h-3 w-28 rounded bg-slate-50" />
+          </div>
+        </div>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          {Array.from({ length: 5 }, (_, i) => (
+            <div key={i} className="flex items-center justify-between border-b border-slate-50 px-3 py-3 last:border-0">
+              <div className="h-3 w-24 rounded bg-slate-100" />
+              <div className="h-3.5 w-16 rounded bg-slate-100" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, Calendar, Loader2, Target } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useData } from '@/lib/hooks/useData';
 
 type Goal = {
@@ -76,8 +76,26 @@ export default function FrequencySavingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-16 text-sm text-brand-gray">
-        <Loader2 size={16} className="animate-spin" />
+      <div className="mx-auto max-w-4xl space-y-4 animate-pulse">
+        <div className="h-3 w-16 rounded bg-slate-100" />
+        <div className="flex items-center justify-between">
+          <div className="h-5 w-32 rounded bg-slate-200" />
+          <div className="h-9 w-20 rounded-xl bg-slate-100" />
+        </div>
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="border-b border-slate-100 bg-slate-50 px-3 py-3">
+            <div className="flex gap-8">
+              <div className="h-3 w-16 rounded bg-slate-200" />
+              <div className="h-3 w-12 rounded bg-slate-200" />
+            </div>
+          </div>
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className="flex items-center gap-8 border-b border-slate-50 px-3 py-3 last:border-0">
+              <div className="h-3.5 w-36 rounded bg-slate-100" />
+              <div className="h-3 w-16 rounded bg-slate-50" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

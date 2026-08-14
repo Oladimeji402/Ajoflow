@@ -341,8 +341,36 @@ export default function SavingsPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center gap-2 py-16 text-sm text-brand-gray">
-                <Loader2 size={16} className="animate-spin" />
+            <div className="mx-auto max-w-6xl space-y-6 animate-pulse">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <div className="h-5 w-36 rounded bg-slate-200" />
+                        <div className="mt-2 h-3 w-56 rounded bg-slate-100" />
+                    </div>
+                    <div className="flex gap-2">
+                        <div className="h-9 w-24 rounded-xl bg-slate-100" />
+                        <div className="h-9 w-28 rounded-xl bg-slate-100" />
+                    </div>
+                </div>
+                {Array.from({ length: 3 }, (_, i) => (
+                    <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                        <div className="border-b border-slate-100 px-4 py-3">
+                            <div className="h-4 w-24 rounded bg-slate-200" />
+                        </div>
+                        {Array.from({ length: 3 }, (_, j) => (
+                            <div
+                                key={j}
+                                className="flex items-center justify-between gap-3 border-b border-slate-50 px-4 py-3 last:border-0"
+                            >
+                                <div className="space-y-2">
+                                    <div className="h-3.5 w-40 rounded bg-slate-100" />
+                                    <div className="h-3 w-24 rounded bg-slate-50" />
+                                </div>
+                                <div className="h-7 w-16 rounded-lg bg-slate-100" />
+                            </div>
+                        ))}
+                    </div>
+                ))}
             </div>
         );
     }

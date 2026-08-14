@@ -3,7 +3,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, BookOpen, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { notifyError } from '@/lib/toast';
 import { PassbookTable } from '@/components/passbook/PassbookTable';
@@ -49,8 +49,20 @@ function SavingsGoalDetail() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center gap-2 py-16 text-sm text-brand-gray">
-                <Loader2 size={16} className="animate-spin" />
+            <div className="mx-auto max-w-xl space-y-4 animate-pulse">
+                <div className="h-3 w-16 rounded bg-slate-100" />
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-3">
+                    <div className="flex items-center gap-2.5">
+                        <div className="h-9 w-9 rounded-xl bg-slate-100" />
+                        <div className="h-4 w-40 rounded bg-slate-200" />
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-slate-100" />
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="h-14 rounded-xl bg-slate-50" />
+                        <div className="h-14 rounded-xl bg-slate-50" />
+                    </div>
+                </div>
+                <div className="h-24 rounded-2xl bg-slate-100" />
             </div>
         );
     }
@@ -148,8 +160,10 @@ function SavingsGoalDetail() {
 export default function SavingsGoalDetailPage() {
     return (
         <Suspense fallback={
-            <div className="flex items-center justify-center gap-2 py-16 text-sm text-brand-gray">
-                <Loader2 size={16} className="animate-spin" />
+            <div className="mx-auto max-w-xl space-y-4 animate-pulse">
+                <div className="h-3 w-16 rounded bg-slate-100" />
+                <div className="h-40 rounded-2xl bg-slate-100" />
+                <div className="h-24 rounded-2xl bg-slate-100" />
             </div>
         }>
             <SavingsGoalDetail />
