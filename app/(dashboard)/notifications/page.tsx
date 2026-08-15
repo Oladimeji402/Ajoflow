@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Bell, BookOpen, CheckCheck, Clock3, HandCoins, Layers, Loader2, Settings, ShieldCheck, Target, Users, Wallet, X } from 'lucide-react';
+import { Bell, BookOpen, CheckCheck, Clock3, HandCoins, Layers, Settings, ShieldCheck, Target, Users, Wallet, X } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { notifyError, notifySuccess } from '@/lib/toast';
 
@@ -147,10 +147,26 @@ export default function NotificationsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-80 grid place-items-center text-brand-gray">
-                <div className="flex items-center gap-2 text-sm font-semibold">
-                    <Loader2 className="animate-spin" size={16} />
-                    Loading notifications...
+            <div className="mx-auto max-w-2xl space-y-4 animate-pulse">
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex gap-1.5">
+                        {Array.from({ length: 4 }, (_, i) => (
+                            <div key={i} className="h-7 w-16 rounded-full bg-slate-100" />
+                        ))}
+                    </div>
+                    <div className="h-7 w-24 rounded-xl bg-slate-100" />
+                </div>
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white divide-y divide-slate-100">
+                    {Array.from({ length: 6 }, (_, i) => (
+                        <div key={i} className="flex items-start gap-3 p-4">
+                            <div className="mt-0.5 h-8 w-8 shrink-0 rounded-xl bg-slate-100" />
+                            <div className="min-w-0 flex-1 space-y-2">
+                                <div className="h-3.5 w-40 rounded bg-slate-200" />
+                                <div className="h-3 w-full rounded bg-slate-100" />
+                                <div className="h-3 w-24 rounded bg-slate-50" />
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         );
