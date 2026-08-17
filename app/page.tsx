@@ -4,6 +4,7 @@ import { Hero } from '@/components/sections/Hero';
 import { HowItWorks } from '@/components/sections/HowItWorks';
 import { Features } from '@/components/sections/Features';
 import { SocialProof } from '@/components/sections/SocialProof';
+import { FAQ } from '@/components/sections/FAQ';
 import { CTA } from '@/components/sections/CTA';
 import { Footer } from '@/components/layout/Footer';
 
@@ -17,6 +18,7 @@ export default function LandingPage() {
         <HowItWorks />
         <Features />
         <SocialProof />
+        <FAQ />
         <CTA />
       </main>
       <Footer />

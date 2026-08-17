@@ -266,7 +266,7 @@ export const Hero = () => {
                         >
                             <Link href="/signup" className="w-full sm:w-auto">
                                 <button
-                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[15px] font-bold px-8 py-4 rounded-2xl group transition-all"
+                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[15px] font-bold px-8 py-3.5 rounded-full group transition-all"
                                     style={{
                                         backgroundColor: '#F5A623',
                                         color: '#1A35D4',
@@ -280,7 +280,7 @@ export const Hero = () => {
                                 </button>
                             </Link>
                             <a href="#how-it-works" className="w-full sm:w-auto">
-                                <button className="w-full inline-flex items-center justify-center text-[15px] font-semibold px-8 py-4 rounded-2xl text-white/60 hover:text-white border border-white/[0.08] hover:border-white/[0.16] bg-transparent transition-all">
+                                <button className="w-full inline-flex items-center justify-center text-[15px] font-semibold px-8 py-3.5 rounded-full text-white/60 hover:text-white border border-white/[0.08] hover:border-white/[0.16] bg-transparent transition-all">
                                     How It Works
                                 </button>
                             </a>

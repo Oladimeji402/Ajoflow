@@ -11,6 +11,7 @@ export const Footer = () => {
             links: [
                 { name: 'How it Works', href: '#how-it-works' },
                 { name: 'Features', href: '#features' },
+                { name: 'FAQ', href: '#faq' },
                 { name: 'Security', href: '#security' },
             ],
         },
