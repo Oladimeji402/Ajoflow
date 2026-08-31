@@ -31,9 +31,10 @@ const HamburgerIcon = ({ open }: { open: boolean }) => (
     </div>
 );
 
-export const Navbar = () => {
+export const Navbar = ({ onLightBackground = false }: { onLightBackground?: boolean }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const lightNav = onLightBackground || isScrolled;
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -92,17 +93,16 @@ export const Navbar = () => {
             <Container className="flex items-center justify-between">
 
                 {/* Logo */}
-                <BrandLogo size="sm" dark={isScrolled} className="sm:hidden" />
-                <BrandLogo size="md" dark={isScrolled} className="hidden sm:inline-flex" />
+                <BrandLogo size="md" dark={lightNav} />
 
                 {/* Center Nav */}
                 <div className="hidden md:flex items-center">
-                    <div className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-all ${isScrolled ? 'bg-slate-50' : 'bg-white/[0.07] backdrop-blur-sm'}`}>
+                    <div className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-all ${lightNav ? 'bg-slate-50' : 'bg-white/[0.07] backdrop-blur-sm'}`}>
                         {navLinks.map((link) => (
                             <a
                                 key={link.name}
                                 href={link.href}
-                                className={`text-[13px] font-semibold px-4 py-2 rounded-full transition-all ${isScrolled
+                                className={`text-[13px] font-semibold px-4 py-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy/40 focus-visible:ring-offset-2 ${lightNav
                                     ? 'text-brand-navy/70 hover:text-brand-navy hover:bg-white'
                                     : 'text-white/70 hover:text-white hover:bg-white/[0.10]'
                                     }`}
@@ -116,7 +116,7 @@ export const Navbar = () => {
                 {/* Right — Auth + Mobile Toggle */}
                 <div className="flex items-center gap-3">
                     <Link href="/login" className="hidden md:block">
-                        <span className={`text-[13px] font-bold transition-colors px-4 py-2 ${isScrolled ? 'text-brand-navy hover:text-brand-primary' : 'text-white/80 hover:text-white'
+                        <span className={`text-[13px] font-bold transition-colors px-4 py-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy/40 ${lightNav ? 'text-brand-navy hover:text-brand-primary' : 'text-white/80 hover:text-white'
                             }`}>
                             Log in
                         </span>
@@ -138,7 +138,7 @@ export const Navbar = () => {
                     </Link>
 
                     <button
-                        className={`md:hidden p-2.5 relative transition-colors rounded-lg ${isMobileMenuOpen ? 'text-brand-navy bg-slate-100' : isScrolled ? 'text-brand-navy' : 'text-white'}`}
+                        className={`md:hidden p-2.5 relative transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy/40 ${isMobileMenuOpen ? 'text-brand-navy bg-slate-100' : lightNav ? 'text-brand-navy' : 'text-white'}`}
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                         aria-label="Toggle menu"
                         aria-expanded={isMobileMenuOpen}

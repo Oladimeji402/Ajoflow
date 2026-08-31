@@ -29,10 +29,10 @@ export const Security = () => {
             <SectionHeader
               tone="dark"
               className="mb-10"
-              eyebrow="Security"
-              serif="Your trust is"
-              rest="our greatest asset."
-              subhead="We use the same encryption standards as major global banks. Your money and data are protected by multiple layers of security."
+              eyebrow="Why AjoFlow"
+              serif="Why"
+              rest="AjoFlow"
+              subhead="Your money and data are protected with encryption, KYC, and licensed payment partners — so savings groups can contribute with confidence."
             />
 
             <div className="space-y-5">
@@ -54,7 +54,7 @@ export const Security = () => {
                     {item.icon}
                   </div>
                   <div>
-                    <h4 className="font-bold text-white mb-0.5 text-[15px]">{item.title}</h4>
+                    <h3 className="font-bold text-white mb-0.5 text-[15px]">{item.title}</h3>
                     <p className="text-[13px] text-slate-400 leading-relaxed">{item.desc}</p>
                   </div>
                 </motion.div>
@@ -89,7 +89,7 @@ export const Security = () => {
                     <div className={`w-11 h-11 ${card.color} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
                       {card.icon}
                     </div>
-                    <h5 className="font-bold text-[13px] text-white mb-0.5">{card.title}</h5>
+                    <p className="font-bold text-[13px] text-white mb-0.5">{card.title}</p>
                     <p className="text-[11px] text-slate-500">{card.sub}</p>
                   </motion.div>
                 ))}

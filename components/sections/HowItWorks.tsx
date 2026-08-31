@@ -6,12 +6,14 @@ import {
     motion,
     useInView,
     useMotionValueEvent,
+    useReducedMotion,
     useScroll,
     useSpring,
     useTransform,
 } from 'motion/react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { UserPlus, Search, CreditCard, Wallet } from 'lucide-react';
+import Link from 'next/link';
 
 const steps = [
     {
@@ -23,7 +25,7 @@ const steps = [
     {
         number: '2',
         title: 'Create your savings plan',
-        description: 'Create target plans or general plans across daily, weekly, or monthly frequency.',
+        description: 'Create target savings or general savings across daily, weekly, or monthly contribution schedules.',
         icon: Search,
     },
     {
@@ -52,7 +54,7 @@ const StepItem = ({
     cardRef: (el: HTMLDivElement | null) => void;
 }) => {
     const wrapRef = useRef<HTMLDivElement>(null);
-    const inView = useInView(wrapRef, { once: true, amount: 0.55, margin: '0px 0px -18% 0px' });
+    const inView = useInView(wrapRef, { once: true, amount: 0.45, margin: '0px 0px -12% 0px' });
     const active = isDesktop ? desktopActive : inView;
     const Icon = step.icon;
 
@@ -105,6 +107,7 @@ export const HowItWorks = () => {
     const [reached, setReached] = useState(0);
     const [isDesktop, setIsDesktop] = useState(false);
     const isDesktopRef = useRef(false);
+    const reduceMotion = useReducedMotion();
 
     useLayoutEffect(() => {
         const mq = window.matchMedia('(min-width: 1024px)');
@@ -119,13 +122,13 @@ export const HowItWorks = () => {
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
-        offset: ['start start', 'end end'],
+        offset: ['start 0.78', 'end 0.42'],
     });
 
     const progress = useSpring(scrollYProgress, {
-        stiffness: 90,
-        damping: 28,
-        mass: 0.28,
+        stiffness: reduceMotion ? 400 : 70,
+        damping: reduceMotion ? 40 : 26,
+        mass: 0.24,
         restDelta: 0.0005,
     });
 
@@ -175,73 +178,78 @@ export const HowItWorks = () => {
         <section
             ref={sectionRef}
             id="how-it-works"
-            className="relative scroll-mt-[7rem] max-lg:overflow-x-hidden lg:h-[240vh]"
-            style={{ backgroundColor: '#EEF1FB' }}
+            className="relative scroll-mt-[7rem] overflow-x-hidden bg-brand-light py-24 lg:py-32"
         >
-            <div className="relative overflow-x-hidden lg:sticky lg:top-0 lg:h-screen lg:flex lg:flex-col lg:justify-center py-24 lg:py-0 lg:pt-28 lg:pb-12">
-                <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(600px,100%)] h-[300px] rounded-full bg-brand-accent/[0.04] blur-[80px]" />
-                </div>
+            <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(600px,100%)] h-[300px] rounded-full bg-brand-accent/[0.04] blur-[80px]" />
+            </div>
 
-                <Container className="relative z-10">
-                    <SectionHeader
-                        className="mb-14 lg:mb-16"
-                        eyebrow="How it works"
-                        serif="Four steps"
-                        rest="to your first savings win."
-                        subhead="Create a plan, contribute on a schedule, watch the passbook, and get paid out to your bank."
-                    />
+            <Container className="relative z-10">
+                <SectionHeader
+                    className="mb-12 lg:mb-16"
+                    eyebrow="How it works"
+                    serif="How AjoFlow"
+                    rest="Works"
+                    subhead="Create a digital Ajo plan — target savings or general savings — then contribute on a schedule, watch the passbook, and get paid out to your bank."
+                />
 
-                    <div ref={trackRef} className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-6">
-                        {rail.width > 0 && (
-                            <div
-                                className="hidden lg:block absolute h-[3px] pointer-events-none z-0"
-                                style={{ top: rail.top, left: rail.left, width: rail.width }}
-                                aria-hidden
-                            >
-                                <div className="absolute inset-0 rounded-full bg-[#1A35D4]/12" />
-                                <motion.div
-                                    className="absolute inset-y-0 left-0 w-full origin-left rounded-full"
-                                    style={{ backgroundColor: '#1A35D4', scaleX: fillScale }}
-                                />
-                                <motion.div
-                                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-2.5 w-2.5 rounded-full"
-                                    style={{
-                                        left: beadX,
-                                        backgroundColor: '#1A35D4',
-                                        boxShadow: '0 0 0 6px rgba(26,53,212,0.14)',
-                                    }}
-                                />
-                            </div>
-                        )}
-
-                        {steps.map((step, i) => (
-                            <StepItem
-                                key={step.number}
-                                step={step}
-                                desktopActive={reached >= i}
-                                isDesktop={isDesktop}
-                                cardRef={(el) => {
-                                    cardRefs.current[i] = el;
+                <div ref={trackRef} className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-6">
+                    {rail.width > 0 && (
+                        <div
+                            className="hidden lg:block absolute h-px pointer-events-none z-0"
+                            style={{ top: rail.top, left: rail.left, width: rail.width }}
+                            aria-hidden
+                        >
+                            <div className="absolute inset-0 rounded-full bg-[#1A35D4]/18" />
+                            <motion.div
+                                className="absolute inset-y-0 left-0 w-full origin-left rounded-full"
+                                style={{ backgroundColor: '#1A35D4', height: 1, scaleX: fillScale }}
+                            />
+                            <motion.div
+                                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full"
+                                style={{
+                                    left: beadX,
+                                    backgroundColor: '#1A35D4',
+                                    boxShadow: '0 0 0 3px rgba(26,53,212,0.12)',
                                 }}
                             />
-                        ))}
-                    </div>
+                        </div>
+                    )}
 
-                    <div className="mt-14 pt-8 border-t border-brand-navy/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <p className="text-[13px] text-brand-gray">
-                            No hidden fees. No manual tracking. Clear savings history.
-                        </p>
-                        <a
-                            href="/signup"
-                            className="inline-flex items-center gap-1.5 text-[13px] font-bold px-5 py-2.5 rounded-full bg-[#F5A623] text-[#6B3C00] hover:bg-[#FBBF24] transition-colors shadow-[0_4px_16px_rgba(245,162,35,0.22)]"
-                        >
-                            Start saving
-                            <span aria-hidden>→</span>
-                        </a>
-                    </div>
-                </Container>
-            </div>
+                    {steps.map((step, i) => (
+                        <StepItem
+                            key={step.number}
+                            step={step}
+                            desktopActive={reached >= i}
+                            isDesktop={isDesktop}
+                            cardRef={(el) => {
+                                cardRefs.current[i] = el;
+                            }}
+                        />
+                    ))}
+                </div>
+
+                <div className="mt-14 pt-8 border-t border-brand-navy/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <p className="text-[13px] text-brand-gray">
+                        No hidden fees. No manual tracking.{' '}
+                        <Link href="/#faq" className="font-semibold text-brand-navy hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy/30 rounded-sm">
+                            Read the FAQs
+                        </Link>
+                        {' '}or learn more{' '}
+                        <Link href="/about" className="font-semibold text-brand-navy hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy/30 rounded-sm">
+                            about AjoFlow
+                        </Link>
+                        .
+                    </p>
+                    <Link
+                        href="/signup"
+                        className="inline-flex items-center gap-1.5 text-[13px] font-bold px-5 py-2.5 rounded-full bg-[#F5A623] text-[#6B3C00] hover:bg-[#FBBF24] transition-colors shadow-[0_4px_16px_rgba(245,162,35,0.22)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy focus-visible:ring-offset-2"
+                    >
+                        Start saving
+                        <span aria-hidden>→</span>
+                    </Link>
+                </div>
+            </Container>
         </section>
     );
 };

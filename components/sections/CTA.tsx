@@ -30,17 +30,14 @@ const GlassIcon = ({
 
 export const CTA = () => {
     return (
-        <section className="relative overflow-x-hidden bg-white pb-16 lg:pb-24">
+        <section className="relative overflow-x-hidden bg-white py-24 lg:py-32">
             <Container>
                 <motion.div
                     initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.55 }}
-                    className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] lg:rounded-[3rem] px-6 py-16 sm:px-12 sm:py-20 lg:px-20 lg:py-24 text-center"
-                    style={{
-                        background: 'linear-gradient(135deg, #1A35D4 0%, #1529A8 48%, #0D1A6E 100%)',
-                    }}
+                    className="relative overflow-hidden rounded-[2rem] px-6 py-16 text-center sm:rounded-[2.5rem] sm:px-12 sm:py-20 lg:rounded-[3rem] lg:px-20 lg:py-24 bg-brand-primary"
                 >
                     <div
                         className="absolute inset-0 pointer-events-none opacity-[0.07]"

@@ -1,25 +1,21 @@
 import type { MetadataRoute } from "next";
-import { getSiteUrl } from "@/lib/site";
+import { getCanonicalUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const siteUrl = getSiteUrl();
   const lastModified = new Date();
 
-  const routes = [
-    "",
-    "/about",
-    "/contact",
-    "/login",
-    "/signup",
-    "/forgot-password",
-    "/terms",
-    "/privacy",
+  const routes: { path: string; changeFrequency: "weekly" | "monthly"; priority: number }[] = [
+    { path: "/", changeFrequency: "weekly", priority: 1 },
+    { path: "/about", changeFrequency: "monthly", priority: 0.8 },
+    { path: "/contact", changeFrequency: "monthly", priority: 0.7 },
+    { path: "/terms", changeFrequency: "monthly", priority: 0.4 },
+    { path: "/privacy", changeFrequency: "monthly", priority: 0.4 },
   ];
 
-  return routes.map((path) => ({
-    url: `${siteUrl}${path || "/"}`,
+  return routes.map((route) => ({
+    url: getCanonicalUrl(route.path),
     lastModified,
-    changeFrequency: path === "" ? "weekly" : "monthly",
-    priority: path === "" ? 1 : path === "/signup" || path === "/about" ? 0.8 : 0.6,
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
   }));
 }

@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Reset password",
-  description: "Choose a new password for your Subtech Ajo Solution account.",
+  description: "Choose a new password for your AjoFlow account.",
   path: "/reset-password",
   index: false,
 });

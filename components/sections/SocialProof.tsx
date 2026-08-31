@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Container } from '../ui/Container';
 import { SectionHeader } from './SectionHeader';
 import { motion } from 'motion/react';
@@ -62,7 +63,19 @@ export const SocialProof = () => {
             eyebrow="Who it's for"
             serif="Made for"
             rest="how people already save."
-            subhead="Target a goal, keep a general plan running, or stop reconstructing payments from chat screenshots — with payouts through a licensed partner."
+            subhead={
+              <>
+                Set a{' '}
+                <Link href="/#features" className="font-semibold text-brand-navy hover:underline">
+                  target savings
+                </Link>{' '}
+                goal, keep a{' '}
+                <Link href="/#features" className="font-semibold text-brand-navy hover:underline">
+                  general savings
+                </Link>{' '}
+                plan running, or stop reconstructing payments from chat screenshots — with payouts through a licensed partner.
+              </>
+            }
           />
         </motion.div>
 

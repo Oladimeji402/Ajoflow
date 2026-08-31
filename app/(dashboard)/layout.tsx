@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: 'Dashboard',
     template: '%s | Subtech Ajo Solution',
   },
-  robots: { index: false, follow: false, nocache: true },
+  robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
 };
 
 export default function DashboardRootLayout({ children }: { children: ReactNode }) {

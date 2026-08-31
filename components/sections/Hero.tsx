@@ -1,338 +1,104 @@
-'use client';
-
 import { Container } from '../ui/Container';
-import { motion } from 'motion/react';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { HeroProductVisual } from './HeroProductVisual';
 
-// ─── Ajo Rotation Circle ──────────────────────────────────────────────────────
-// Replaces the generic phone mockup with a visual that actually explains
-// what Ajo is — structured savings with clear payout tracking.
-const AjoCircle = () => {
-    const SIZE = 340;
-    const CX = SIZE / 2;
-    const CY = SIZE / 2;
-    const R = 118;
-    const NODE_R = 26;
+const TRUST_ITEMS = [
+    'Automated contributions',
+    'Real-time tracking',
+    'Zero missed payouts',
+] as const;
 
-    const members = [
-        { initials: 'OJ', month: 'Jan', status: 'paid' as const },
-        { initials: 'CE', month: 'Feb', status: 'paid' as const },
-        { initials: 'IK', month: 'Mar', status: 'current' as const },
-        { initials: 'AU', month: 'Apr', status: 'upcoming' as const },
-        { initials: 'BT', month: 'May', status: 'upcoming' as const },
-        { initials: 'ED', month: 'Jun', status: 'upcoming' as const },
-    ];
-
-    const positions = members.map((_, i) => ({
-        x: CX + R * Math.cos(-Math.PI / 2 + (2 * Math.PI * i) / members.length),
-        y: CY + R * Math.sin(-Math.PI / 2 + (2 * Math.PI * i) / members.length),
-    }));
-
-    return (
-        <div className="relative select-none" style={{ width: SIZE, height: SIZE }}>
-            {/* SVG: ring + connector lines */}
-            <svg
-                width={SIZE}
-                height={SIZE}
-                viewBox={`0 0 ${SIZE} ${SIZE}`}
-                className="absolute inset-0"
-                aria-hidden
-            >
-                {/* Outer ambient glow ring */}
-                <circle cx={CX} cy={CY} r={R + 30} fill="none"
-                    stroke="rgba(245,158,11,0.06)" strokeWidth="40" />
-
-                {/* Main orbit ring */}
-                <circle cx={CX} cy={CY} r={R} fill="none"
-                    stroke="rgba(255,255,255,0.07)" strokeWidth="1" strokeDasharray="4 6" />
-
-                {/* Paid arc (Jan → current Mar) — spans 2 of 6 segments = 120° */}
-                <circle cx={CX} cy={CY} r={R} fill="none"
-                    stroke="rgba(37,99,235,0.35)" strokeWidth="2.5"
-                    strokeDasharray={`${(2 / 6) * 2 * Math.PI * R} ${2 * Math.PI * R}`}
-                    strokeLinecap="round"
-                    transform={`rotate(-90 ${CX} ${CY})`}
-                />
-
-                {/* Connector lines center → each node */}
-                {positions.map((pos, i) => (
-                    <line
-                        key={i}
-                        x1={CX} y1={CY}
-                        x2={pos.x} y2={pos.y}
-                        stroke={members[i].status === 'current'
-                            ? 'rgba(245,158,11,0.20)'
-                            : members[i].status === 'paid'
-                                ? 'rgba(37,99,235,0.15)'
-                                : 'rgba(255,255,255,0.04)'}
-                        strokeWidth="1"
-                    />
-                ))}
-            </svg>
-
-            {/* Center — pot amount */}
-            <div
-                className="absolute flex flex-col items-center justify-center rounded-full bg-white/[0.05] border border-white/[0.08] backdrop-blur-sm"
-                style={{
-                    width: 80, height: 80,
-                    left: CX - 40, top: CY - 40,
-                }}
-            >
-                <span className="text-white font-black text-[13px] tracking-tight leading-none">₦600K</span>
-                <span className="text-white/35 text-[8px] mt-0.5 uppercase tracking-widest">Total Saved</span>
-            </div>
-
-            {/* Member nodes */}
-            {members.map((member, i) => {
-                const pos = positions[i];
-                const isPaid = member.status === 'paid';
-                const isCurrent = member.status === 'current';
-
-                return (
-                    <div
-                        key={i}
-                        className="absolute flex flex-col items-center"
-                        style={{
-                            left: pos.x - NODE_R,
-                            top: pos.y - NODE_R,
-                            width: NODE_R * 2,
-                        }}
-                    >
-                        {/* Pulsing ring for current */}
-                        {isCurrent && (
-                            <div
-                                className="absolute rounded-full border border-brand-accent/40 animate-ping"
-                                style={{
-                                    width: NODE_R * 2 + 16,
-                                    height: NODE_R * 2 + 16,
-                                    top: -8, left: -8,
-                                }}
-                            />
-                        )}
-
-                        {/* Node circle */}
-                        <div
-                            className="rounded-full flex items-center justify-center text-[10px] font-black relative z-10"
-                            style={{
-                                width: NODE_R * 2,
-                                height: NODE_R * 2,
-                                backgroundColor: isCurrent
-                                    ? '#F5A623'
-                                    : isPaid
-                                        ? 'rgba(26,53,212,0.25)'
-                                        : 'rgba(255,255,255,0.06)',
-                                border: `1.5px solid ${isCurrent
-                                    ? '#F5A623'
-                                    : isPaid
-                                        ? 'rgba(26,53,212,0.5)'
-                                        : 'rgba(255,255,255,0.10)'}`,
-                                color: isCurrent ? '#1A35D4' : isPaid ? '#93C5FD' : 'rgba(255,255,255,0.35)',
-                            }}
-                        >
-                            {isPaid ? <CheckCircle2 size={13} /> : member.initials}
-                        </div>
-
-                        {/* Month label below node */}
-                        <span
-                            className="text-[8px] mt-1 font-semibold tracking-wide"
-                            style={{
-                                color: isCurrent
-                                    ? '#F5A623'
-                                    : isPaid
-                                        ? 'rgba(147,197,253,0.7)'
-                                        : 'rgba(255,255,255,0.20)',
-                            }}
-                        >
-                            {member.month}
-                        </span>
-                    </div>
-                );
-            })}
-
-            {/* "Your turn" tooltip on current node */}
-            <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2, duration: 0.5 }}
-                className="absolute bg-brand-accent text-[#1A35D4] text-[9px] font-black px-2 py-1 rounded-full whitespace-nowrap shadow-lg shadow-brand-accent/30"
-                style={{
-                    left: positions[2].x + NODE_R + 6,
-                    top: positions[2].y - 12,
-                }}
-            >
-                ← Due this cycle
-            </motion.div>
-        </div>
-    );
-};
-
-// ─── Hero ──────────────────────────────────────────────────────────────────────
 export const Hero = () => {
     return (
-        <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#1A35D4]">
-
-            {/* Subtle dot grid */}
+        <section className="relative overflow-x-hidden bg-brand-primary">
             <div
-                className="absolute inset-0 pointer-events-none"
+                className="pointer-events-none absolute inset-0"
                 style={{
-                    backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
+                    backgroundImage: 'radial-gradient(rgba(255,255,255,0.045) 0.5px, transparent 0.5px)',
                     backgroundSize: '30px 30px',
                 }}
+                aria-hidden
+            />
+            <div
+                className="pointer-events-none absolute top-1/2 right-[8%] h-[420px] w-[420px] -translate-y-1/2 rounded-full bg-brand-accent/[0.08] blur-[110px]"
+                aria-hidden
             />
 
-            {/* Ambient glow — anchored to hero visual area */}
-            <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-brand-accent/[0.04] blur-[120px] pointer-events-none" />
-            <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-brand-primary/[0.07] blur-[80px] pointer-events-none" />
+            <Container className="relative z-10 w-full min-w-0 pt-[108px] pb-12 sm:pt-[116px] sm:pb-16 lg:pt-[132px] lg:pb-20">
+                <div className="grid w-full min-w-0 items-center gap-10 lg:grid-cols-2 lg:gap-12 xl:gap-16">
+                    <div className="w-full min-w-0 max-w-[540px]">
+                        <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.16em] text-white/45 sm:mb-5 sm:tracking-[0.18em]">
+                            Digital Ajo • Savings • Payouts
+                        </p>
 
-            <Container className="relative z-10 w-full min-w-0 overflow-x-hidden pt-[108px] pb-16 sm:pt-[116px] sm:pb-24 lg:pt-[148px] lg:pb-32">
-                <div className="grid w-full min-w-0 lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
-
-                    {/* ─── LEFT — Typographic lead ─── */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 28 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, ease: [0.21, 0.45, 0.27, 0.9] }}
-                        className="@container w-full min-w-0 max-w-[600px]"
-                    >
-                        {/* Eyebrow */}
-                        <motion.div
-                            initial={{ opacity: 0, x: -12 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.08 }}
-                            className="flex items-center gap-2.5 mb-5 sm:mb-7"
-                        >
-                            <span className="relative flex h-1.5 w-1.5 shrink-0">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75" />
-                                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-accent" />
-                            </span>
-                            <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.14em] sm:tracking-[0.18em] uppercase text-white/40">
-                                Target + General savings
-                            </span>
-                        </motion.div>
-
-                        {/* Headline — sized to the column so "automated." never clips on phones */}
-                        <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.14, duration: 0.55 }}
-                            className="mb-5 sm:mb-7 w-full max-w-full leading-[0.98] font-normal text-[1.85rem] sm:text-[clamp(2.75rem,7vw,6.5rem)]"
-                        >
-                            <span
-                                className="block"
-                                style={{
-                                    fontFamily: 'var(--font-serif)',
-                                    fontStyle: 'italic',
-                                    fontWeight: 400,
-                                    color: '#F5A623',
-                                    letterSpacing: '-0.02em',
-                                }}
-                            >
-                                Ajo,
+                        <h1 className="mb-5 w-full max-w-full text-[2.05rem] leading-[1.08] font-normal sm:mb-6 sm:text-[clamp(2.5rem,4.6vw,3.65rem)]">
+                            <span className="text-white">
+                                Your{' '}
+                                <span
+                                    style={{
+                                        fontFamily: 'var(--font-serif)',
+                                        fontStyle: 'italic',
+                                        fontWeight: 400,
+                                        letterSpacing: '-0.02em',
+                                    }}
+                                >
+                                    Ajo,
+                                </span>
                             </span>
                             <span
-                                className="block w-full max-w-full tracking-[-0.06em] sm:tracking-[-0.04em]"
+                                className="mt-1 block tracking-[-0.04em] text-brand-accent sm:mt-1.5"
                                 style={{
                                     fontFamily: 'var(--font-display)',
                                     fontWeight: 800,
-                                    color: '#FFFFFF',
                                 }}
                             >
-                                automated.
+                                finally organized.
                             </span>
-                        </motion.h1>
+                        </h1>
 
-                        {/* Supporting line */}
-                        <motion.p
-                            initial={{ opacity: 0, y: 14 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.22 }}
-                            className="text-white/50 text-[14px] sm:text-[17px] leading-[1.65] mb-8 sm:mb-10 w-full max-w-full sm:max-w-[440px] text-pretty"
-                        >
-                            Save toward targets or general plans, track every naira, and pay from wallet in seconds —
-                            {' '}<span className="text-white/80">clear records, no manual stress.</span>
-                        </motion.p>
+                        <p className="mb-7 max-w-[440px] text-[15px] leading-[1.65] text-pretty text-white/70 sm:mb-8 sm:text-[17px]">
+                            Save with friends, automate contributions, track every naira, and know exactly when
+                            your next payout is due.
+                        </p>
 
-                        {/* CTAs */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="flex flex-col sm:flex-row gap-3 mb-10 sm:mb-12"
-                        >
-                            <Link href="/signup" className="w-full sm:w-auto">
-                                <button
-                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[15px] font-bold px-6 sm:px-8 py-3.5 rounded-full group transition-all"
-                                    style={{
-                                        backgroundColor: '#F5A623',
-                                        color: '#1A35D4',
-                                        boxShadow: '0 12px 32px rgba(245,162,35,0.25)',
-                                    }}
-                                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#FBBF24')}
-                                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#F5A623')}
-                                >
-                                    Start Saving — Free
-                                    <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-                                </button>
+                        <div className="mb-8 flex flex-col gap-3 sm:mb-9 sm:flex-row sm:items-center">
+                            <Link
+                                href="/signup"
+                                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-accent px-7 py-3.5 text-[15px] font-bold text-brand-accent-dark shadow-[0_10px_28px_rgba(245,162,35,0.28)] transition-colors hover:bg-[#FBBF24] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A35D4] sm:w-auto"
+                            >
+                                Start Saving — Free
+                                <ArrowRight size={16} aria-hidden />
                             </Link>
-                            <a href="/#how-it-works" className="w-full sm:w-auto">
-                                <button className="w-full inline-flex items-center justify-center text-[15px] font-semibold px-6 sm:px-8 py-3.5 rounded-full text-white/60 hover:text-white border border-white/[0.08] hover:border-white/[0.16] bg-transparent transition-all">
-                                    How It Works
-                                </button>
-                            </a>
-                        </motion.div>
-
-                        {/* Stats strip — real proof */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.42 }}
-                            className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-8"
-                        >
-                            {[
-                                { value: '₦0', label: 'Missed payouts' },
-                                { value: '2 Types', label: 'Plan types' },
-                                { value: 'Live', label: 'Live tracking' },
-                            ].map((stat, i) => (
-                                <div
-                                    key={stat.label}
-                                    className={`min-w-0 ${i > 0 ? 'pl-2 sm:pl-8 border-l border-white/[0.08]' : ''}`}
-                                >
-                                    <p className="text-white font-black text-[0.95rem] sm:text-[1.2rem] leading-none tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
-                                        {stat.value}
-                                    </p>
-                                    <p className="text-white/35 text-[10px] sm:text-[11px] mt-1 font-medium leading-snug">
-                                        {stat.label}
-                                    </p>
-                                </div>
-                            ))}
-                        </motion.div>
-                    </motion.div>
-
-                    {/* ─── RIGHT — Ajo rotation circle ─── */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.92 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.7, delay: 0.25, ease: [0.21, 0.45, 0.27, 0.9] }}
-                        className="hidden lg:flex flex-col items-center gap-4"
-                    >
-                        {/* Label above */}
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03]">
-                            <span className="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse" />
-                            <span className="text-[11px] text-white/40 font-semibold tracking-wide">Active savings overview</span>
+                            <Link
+                                href="/#how-it-works"
+                                className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/20 bg-transparent px-7 py-3.5 text-[15px] font-semibold text-white/85 transition-colors hover:border-white/40 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A35D4] sm:w-auto"
+                            >
+                                See How It Works
+                            </Link>
                         </div>
 
-                        <AjoCircle />
+                        <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
+                            {TRUST_ITEMS.map((item) => (
+                                <li
+                                    key={item}
+                                    className="flex items-center gap-2 text-[13px] font-semibold text-white/85"
+                                >
+                                    <span
+                                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-accent"
+                                        aria-hidden
+                                    />
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
 
-                        {/* Label below */}
-                        <p className="text-[11px] text-white/25 font-medium tracking-wide">
-                            Daily, weekly, and monthly plans
-                        </p>
-                    </motion.div>
-
+                    <div className="flex justify-center lg:justify-end">
+                        <HeroProductVisual />
+                    </div>
                 </div>
             </Container>
-
         </section>
     );
 };

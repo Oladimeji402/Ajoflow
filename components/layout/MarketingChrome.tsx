@@ -3,7 +3,13 @@ import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { SponsorBar } from "@/components/layout/SponsorBar";
 
-export function MarketingChrome({ children }: { children: ReactNode }) {
+export function MarketingChrome({
+  children,
+  navOnLight = false,
+}: {
+  children: ReactNode;
+  navOnLight?: boolean;
+}) {
   return (
     <div className="relative min-h-screen flex flex-col scroll-smooth">
       <a
@@ -13,7 +19,7 @@ export function MarketingChrome({ children }: { children: ReactNode }) {
         Skip to content
       </a>
       <SponsorBar />
-      <Navbar />
+      <Navbar onLightBackground={navOnLight} />
       <div id="main-content" className="flex-grow">
         {children}
       </div>

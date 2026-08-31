@@ -172,8 +172,7 @@ export const FAQ = () => {
     return (
         <section
             id="faq"
-            className="py-24 lg:py-32 relative overflow-hidden scroll-mt-[7rem]"
-            style={{ backgroundColor: '#FFFFFF' }}
+            className="relative scroll-mt-[7rem] overflow-hidden bg-white py-24 lg:py-32"
         >
             {!isLg && (
                 <div
@@ -206,9 +205,9 @@ export const FAQ = () => {
                         <div className="relative z-10">
                             <SectionHeader
                                 eyebrow="FAQ"
-                                serif="Questions,"
-                                rest="answered."
-                                subhead="The things people ask before they start their first plan."
+                                serif="Frequently"
+                                rest="Asked Questions"
+                                subhead="The things people ask before they start their first Ajo savings plan."
                             />
                         </div>
                     </motion.div>
@@ -219,11 +218,12 @@ export const FAQ = () => {
                                 const isOpen = open === i;
                                 return (
                                     <div key={item.q} className="border-b border-brand-navy/[0.08]">
+                                        <h3 className="m-0">
                                         <button
                                             type="button"
                                             aria-expanded={isOpen}
                                             onClick={() => setOpen(isOpen ? -1 : i)}
-                                            className="w-full flex items-start justify-between gap-4 py-5 text-left group"
+                                            className="w-full flex items-start justify-between gap-4 py-5 text-left group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-navy/30 focus-visible:ring-offset-2 rounded-sm"
                                         >
                                             <span
                                                 className="text-[15px] sm:text-[16px] font-bold leading-snug pt-0.5"
@@ -247,6 +247,7 @@ export const FAQ = () => {
                                                 />
                                             </span>
                                         </button>
+                                        </h3>
                                         <div
                                             className="grid transition-[grid-template-rows] duration-300 ease-out"
                                             style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}

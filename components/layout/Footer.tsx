@@ -12,7 +12,8 @@ export const Footer = () => {
             title: 'Product',
             links: [
                 { name: 'How it Works', href: '/#how-it-works' },
-                { name: 'Features', href: '/#features' },
+                { name: 'Savings features', href: '/#features' },
+                { name: 'Target savings', href: '/#features' },
                 { name: 'Security', href: '/#security' },
                 { name: 'FAQ', href: '/#faq' },
             ],
@@ -36,13 +37,13 @@ export const Footer = () => {
     ];
 
     return (
-        <footer className="relative overflow-hidden border-t border-white/[0.08]" style={{ backgroundColor: '#0D1A6E' }}>
+        <footer className="relative overflow-hidden border-t border-white/[0.08] bg-brand-navy">
             <Container className="py-14">
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 lg:gap-16">
                     <div className="col-span-2">
                         <BrandLogo size="sm" className="mb-5" />
                         <p className="text-[13px] text-slate-400 max-w-xs mb-6 leading-relaxed">
-                            Digital ajo savings for Nigeria. Target and general plans, a live passbook, and payouts to your bank.
+                            Digital Ajo savings for Nigeria. Run savings groups, automate contributions, track every naira, and receive scheduled payouts.
                         </p>
                         <a
                             href={`mailto:${SITE_SUPPORT_EMAIL}`}

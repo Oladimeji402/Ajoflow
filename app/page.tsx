@@ -9,7 +9,7 @@ import { CTA } from "@/components/sections/CTA";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { FAQS } from "@/lib/faq";
 import { homeMetadata } from "@/lib/seo";
-import { SITE_NAME, SITE_PRODUCT, getSiteUrl } from "@/lib/site";
+import { SITE_PRODUCT, SITE_NAME, getSiteUrl } from "@/lib/site";
 
 export const metadata = homeMetadata;
 
@@ -45,18 +45,19 @@ export default function LandingPage() {
         data={{
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          name: SITE_NAME,
-          alternateName: SITE_PRODUCT,
+          name: SITE_PRODUCT,
+          alternateName: SITE_NAME,
           applicationCategory: "FinanceApplication",
           operatingSystem: "Web",
-          url: siteUrl,
+          url: `${siteUrl}/`,
+          publisher: { "@id": `${siteUrl}/#organization` },
           offers: {
             "@type": "Offer",
             price: "0",
             priceCurrency: "NGN",
           },
           description:
-            "Digital ajo savings for Nigeria with target and general plans, automated contributions, and bank payouts.",
+            "Digital Ajo and automated savings for Nigeria. Create target or general plans, automate contributions, track every naira, and receive scheduled payouts.",
         }}
       />
     </MarketingChrome>

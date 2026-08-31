@@ -1,7 +1,7 @@
 export const FAQS = [
   {
     q: "What is AjoFlow?",
-    a: "AjoFlow is a digital savings platform for creating target or general plans, automating contributions, and tracking every cycle in a passbook — with payouts sent to your verified bank account on schedule.",
+    a: "AjoFlow is a digital Ajo platform for Nigeria. Create target or general savings plans, automate contributions, track every naira in a passbook, and receive scheduled payouts to your verified bank account.",
   },
   {
     q: "What is the difference between a target plan and a general plan?",

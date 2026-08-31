@@ -59,6 +59,7 @@ export const BrandLogo = ({
                     width={w}
                     height={h}
                     priority
+                    className="h-8 w-auto sm:h-10"
                     style={{ display: 'block' }}
                 />
             )}

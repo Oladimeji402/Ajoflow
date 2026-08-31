@@ -9,7 +9,7 @@ import { SITE_NAME, SITE_SUPPORT_EMAIL } from "@/lib/site";
 export const metadata = pageMetadata({
   title: "Contact",
   description:
-    "Get help with Subtech Ajo Solution. Email support or open a ticket in the app for questions about savings plans, payouts, KYC, or your account.",
+    "Get help with AjoFlow. Email support or open a ticket in the app for questions about savings plans, payouts, KYC, or your account.",
   path: "/contact",
 });
 

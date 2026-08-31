@@ -26,6 +26,7 @@
   --color-brand-soft-blue: #EFF6FF;
   --color-brand-gray: #64748B;
   --color-brand-light: #EEF1FB;
+  --color-brand-cream: #F7F3EC;
   --color-brand-border: #E2E8F0;
   --color-brand-disabled: #CBD5E1;
   --color-brand-footer-text: #94A3B8;
@@ -66,6 +67,45 @@
   50%       { transform: translateY(-10px); }
 }
 
+/* Hero phone — wallet → save → payout loop */
+@keyframes hero-phone-cycle {
+  0%, 28% { opacity: 1; }
+  33%, 100% { opacity: 0; }
+}
+
+.hero-phone-screen {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.hero-phone-screen-1 {
+  opacity: 1;
+  animation: hero-phone-cycle 12s infinite;
+}
+
+.hero-phone-screen-2 {
+  animation: hero-phone-cycle 12s 4s infinite;
+}
+
+.hero-phone-screen-3 {
+  animation: hero-phone-cycle 12s 8s infinite;
+}
+
+.hero-phone-card-1 {
+  animation: hero-phone-cycle 12s infinite;
+}
+
+.hero-phone-card-2 {
+  opacity: 0;
+  animation: hero-phone-cycle 12s 4s infinite;
+}
+
+.hero-phone-card-3 {
+  opacity: 0;
+  animation: hero-phone-cycle 12s 8s infinite;
+}
+
 /* Auth panel — a single dash travels the ajo hexagon, connecting node to node. */
 @keyframes auth-connect {
   to { stroke-dashoffset: -1000; }
@@ -89,7 +129,13 @@
 
 @media (prefers-reduced-motion: reduce) {
   .auth-connect-trace,
-  .auth-connect-node {
+  .auth-connect-node,
+  .hero-phone-screen-1,
+  .hero-phone-screen-2,
+  .hero-phone-screen-3,
+  .hero-phone-card-1,
+  .hero-phone-card-2,
+  .hero-phone-card-3 {
     animation: none;
   }
   .auth-connect-trace {
@@ -97,6 +143,16 @@
   }
   .auth-connect-node {
     opacity: 0.7;
+  }
+  .hero-phone-screen-1,
+  .hero-phone-card-1 {
+    opacity: 1;
+  }
+  .hero-phone-screen-2,
+  .hero-phone-screen-3,
+  .hero-phone-card-2,
+  .hero-phone-card-3 {
+    opacity: 0;
   }
 }
 

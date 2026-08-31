@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Page not found",
-  description: "That page does not exist on Subtech Ajo Solution. Return home or open your dashboard.",
+  description: "That page does not exist on AjoFlow. Return home or open your dashboard.",
   path: "/404",
   index: false,
 });

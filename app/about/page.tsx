@@ -9,7 +9,7 @@ import { SITE_NAME, SITE_PRODUCT } from "@/lib/site";
 export const metadata = pageMetadata({
   title: "About",
   description:
-    "Subtech Ajo Solution brings Nigeria's ajo tradition online. Learn how AjoFlow helps people save toward targets or general plans with a live passbook and bank payouts.",
+    "Subtech Ajo Solution brings Nigeria's ajo tradition online. Learn how AjoFlow helps savings groups automate contributions, track every naira, and manage target or general savings with bank payouts.",
   path: "/about",
 });
 
