@@ -219,10 +219,10 @@ function SignUpContent() {
                     </div>
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">One more step</p>
-                        <h2 id="verify-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
+                        <h1 id="verify-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
                             <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Check your </span>
                             <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.02em' }}>inbox.</span>
-                        </h2>
+                        </h1>
                         <p className="mt-2 text-sm text-slate-500 max-w-xs mx-auto">
                             We sent a verification link to{' '}
                             <span className="font-semibold text-brand-navy">{pendingEmail}</span>.
@@ -298,10 +298,10 @@ function SignUpContent() {
         <section aria-labelledby="signup-title" className="space-y-5">
             <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">Sign up</p>
-                <h2 id="signup-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
+                <h1 id="signup-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
                     <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Create your </span>
                     <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.02em' }}>account.</span>
-                </h2>
+                </h1>
                 <p className="mt-1 text-sm text-slate-500">Start saving with your community in minutes.</p>
             </div>
 

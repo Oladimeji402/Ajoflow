@@ -103,11 +103,6 @@ export async function POST(request: Request) {
       });
     }
 
-    console.log("[wallet/check-deposits] Fetched transactions:", transactions.length);
-    if (transactions.length > 0) {
-      console.log("[wallet/check-deposits] Sample transaction:", JSON.stringify(transactions[0], null, 2));
-    }
-
     const supabaseAdmin = createSupabaseAdminClient();
     let credited = 0;
     for (const transaction of transactions) {
@@ -115,7 +110,6 @@ export async function POST(request: Request) {
       // Match by wallet_id if present, otherwise trust the endpoint filtered correctly.
       const txWalletId = String(transaction.wallet_id ?? transaction.vbank_data ?? "");
       if (txWalletId && txWalletId !== String(profile.monicredit_wallet_id)) {
-        console.log("[wallet/check-deposits] Skipping transaction - wallet_id mismatch:", txWalletId, "vs", profile.monicredit_wallet_id);
         continue;
       }
 
@@ -124,24 +118,12 @@ export async function POST(request: Request) {
       // transaction.amount is the amount credited to the wallet
       const rawAmount = transaction.amount ?? transaction.balance ?? transaction.amount_paid;
       const amount = toAmountNaira(rawAmount);
-      console.log("[wallet/check-deposits] Processing transaction:", { 
-        reference, 
-        rawAmount,
-        amount, 
-        status: transaction.status,
-        provider_charges: transaction.provider_charges
-      });
-      
+
       if (!reference) {
-        console.log("[wallet/check-deposits] Skipping transaction - no reference");
         continue;
       }
-      
+
       if (!amount) {
-        console.log("[wallet/check-deposits] Skipping transaction - amount below minimum or invalid:", { 
-          rawAmount, 
-          minRequired: MIN_DEPOSIT_NAIRA 
-        });
         continue;
       }
 
@@ -151,13 +133,11 @@ export async function POST(request: Request) {
         .eq("reference", reference)
         .maybeSingle();
       if (existing) {
-        console.log("[wallet/check-deposits] Transaction already exists in database:", reference);
         continue;
       }
 
       const requestId = `REQ-MONI-WALLET-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-      console.log("[wallet/check-deposits] Creating payment record:", { requestId, reference, amount, user_id: auth.user.id });
-      
+
       const { error: insertError } = await supabaseAdmin
         .from("payment_records")
         .insert({
@@ -183,9 +163,7 @@ export async function POST(request: Request) {
         console.error("[wallet/check-deposits] insert payment error:", insertError.message);
         continue;
       }
-      console.log("[wallet/check-deposits] Payment record created successfully");
 
-      console.log("[wallet/check-deposits] Calling markWalletFundingSuccess for reference:", reference);
       const finalize = await markWalletFundingSuccess({
         reference,
         providerPayload: {
@@ -197,16 +175,13 @@ export async function POST(request: Request) {
         },
       });
 
-      console.log("[wallet/check-deposits] markWalletFundingSuccess result:", finalize);
-      
       if (!finalize.ok && !finalize.idempotent) {
         console.error("[wallet/check-deposits] finalize failed for reference", reference);
         continue;
       }
 
       credited += amount;
-      console.log("[wallet/check-deposits] Wallet credited successfully! Amount:", amount, "Total credited:", credited);
-      
+
       await supabaseAdmin.from("notifications").insert({
         user_id: auth.user.id,
         type: "wallet_funded",
@@ -214,7 +189,6 @@ export async function POST(request: Request) {
         body: `Your wallet has been credited with NGN ${amount.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
         metadata: { reference, amount, provider: "monicredit" },
       });
-      console.log("[wallet/check-deposits] Notification created");
     }
 
     const syncedAt = new Date().toISOString();
@@ -228,12 +202,6 @@ export async function POST(request: Request) {
       .select("wallet_balance, virtual_account_number, virtual_account_bank, virtual_account_name, monicredit_last_synced_at")
       .eq("id", auth.user.id)
       .maybeSingle();
-
-    console.log("[wallet/check-deposits] Final result:", {
-      credited,
-      balance: Number(refreshed?.wallet_balance ?? profile.wallet_balance ?? 0),
-      transactionsProcessed: transactions.length
-    });
 
     return NextResponse.json({
       data: {

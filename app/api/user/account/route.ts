@@ -69,8 +69,6 @@ export async function PATCH(request: Request) {
       return badRequestResponse("No valid fields to update.");
     }
 
-    console.log(`[user/account] Updating profile for user ${auth.user.id}:`, Object.keys(updates));
-
     // Update profile
     const { error: updateError } = await auth.supabase
       .from("profiles")
@@ -81,8 +79,6 @@ export async function PATCH(request: Request) {
       console.error(`[user/account] Failed to update profile:`, updateError);
       return serverErrorResponse(updateError);
     }
-
-    console.log(`[user/account] Profile updated successfully for user ${auth.user.id}`);
 
     return NextResponse.json({
       success: true,

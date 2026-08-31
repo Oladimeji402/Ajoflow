@@ -1,4 +1,12 @@
 import { LegalPageShell } from '@/components/legal/LegalPageShell';
+import { pageMetadata } from '@/lib/seo';
+
+export const metadata = pageMetadata({
+  title: 'Terms of Service',
+  description:
+    'Read the Terms of Service for Subtech Ajo Solution (AjoFlow), including account rules, contributions, payouts, and acceptable use.',
+  path: '/terms',
+});
 
 const sections = [
   {

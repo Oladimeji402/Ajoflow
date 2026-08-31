@@ -175,10 +175,10 @@ function ResetPasswordContent() {
             <section aria-labelledby="reset-success-title" className="space-y-6">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">All done</p>
-                    <h2 id="reset-success-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
+                    <h1 id="reset-success-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
                         <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Password </span>
                         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.02em' }}>updated.</span>
-                    </h2>
+                    </h1>
                     <p className="mt-1 text-sm text-slate-500">
                         You can now sign in with your new password.
                     </p>
@@ -202,7 +202,7 @@ function ResetPasswordContent() {
         <section aria-labelledby="reset-title" className="space-y-6">
             <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">Password reset</p>
-                <h2 id="reset-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
+                <h1 id="reset-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
                     {isOtpVerified ? (
                         <>
                             <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Set a new </span>
@@ -214,7 +214,7 @@ function ResetPasswordContent() {
                             <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.02em' }}>OTP.</span>
                         </>
                     )}
-                </h2>
+                </h1>
                 <p className="mt-1 text-sm text-slate-500">
                     {isOtpVerified ? 'Choose a secure password for your account.' : 'Enter the OTP sent to your email to continue.'}
                 </p>
@@ -370,9 +370,9 @@ export default function ResetPasswordPage() {
                 <section aria-labelledby="reset-title" className="space-y-6">
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">Password reset</p>
-                        <h2 id="reset-title" className="mt-2 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-brand-navy" style={{ fontFamily: 'var(--font-display)' }}>
+                        <h1 id="reset-title" className="mt-2 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-brand-navy" style={{ fontFamily: 'var(--font-display)' }}>
                             Loading reset form...
-                        </h2>
+                        </h1>
                     </div>
                 </section>
             }

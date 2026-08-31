@@ -1,4 +1,12 @@
 import { LegalPageShell } from '@/components/legal/LegalPageShell';
+import { pageMetadata } from '@/lib/seo';
+
+export const metadata = pageMetadata({
+  title: 'Privacy Policy',
+  description:
+    'How Subtech Ajo Solution collects, uses, and protects personal information when you use AjoFlow savings plans, wallet, and support.',
+  path: '/privacy',
+});
 
 const sections = [
   {

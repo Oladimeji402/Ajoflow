@@ -38,6 +38,7 @@ const AjoCircle = () => {
                 height={SIZE}
                 viewBox={`0 0 ${SIZE} ${SIZE}`}
                 className="absolute inset-0"
+                aria-hidden
             >
                 {/* Outer ambient glow ring */}
                 <circle cx={CX} cy={CY} r={R + 30} fill="none"
@@ -279,7 +280,7 @@ export const Hero = () => {
                                     <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
                                 </button>
                             </Link>
-                            <a href="#how-it-works" className="w-full sm:w-auto">
+                            <a href="/#how-it-works" className="w-full sm:w-auto">
                                 <button className="w-full inline-flex items-center justify-center text-[15px] font-semibold px-8 py-3.5 rounded-full text-white/60 hover:text-white border border-white/[0.08] hover:border-white/[0.16] bg-transparent transition-all">
                                     How It Works
                                 </button>

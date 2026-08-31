@@ -6,7 +6,7 @@ import { ShieldCheck, Lock, CheckCircle2, Eye, Fingerprint, KeyRound } from 'luc
 
 export const Security = () => {
   return (
-    <section id="security" className="py-24 lg:py-32 bg-brand-navy text-white overflow-hidden relative">
+    <section id="security" className="py-24 lg:py-32 bg-brand-navy text-white overflow-hidden relative scroll-mt-[7rem]">
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-brand-primary/15 rounded-full blur-[150px]" />
@@ -29,10 +29,10 @@ export const Security = () => {
               <span className="text-[11px] font-bold text-brand-electric uppercase tracking-[0.1em]">Security First</span>
             </div>
 
-            <h3 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold mb-6 tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold mb-6 tracking-tight leading-tight">
               Your trust is our{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-electric to-[#93C5FD]">greatest asset.</span>
-            </h3>
+            </h2>
             <p className="text-slate-400 text-[15px] mb-10 leading-relaxed max-w-lg">
               We use the same encryption standards as major global banks. Your money and data are protected by multiple layers of security.
             </p>

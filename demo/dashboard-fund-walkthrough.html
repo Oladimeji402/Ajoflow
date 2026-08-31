@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AjoFlow — Fund wallet</title>
+  <style>
+    :root {
+      --navy: #0D1A6E;
+      --primary: #1A35D4;
+      --accent: #F5A623;
+      --gray: #64748B;
+      --light: #EEF1FB;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: linear-gradient(#EFF6FF, #F0F5FF 40%, #fff);
+      color: var(--navy);
+    }
+    .app { min-height: 100%; display: flex; flex-direction: column; padding-bottom: 118px; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 14px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    header .kicker { font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--gray); margin: 0; }
+    header h1 { font-size: 16px; margin: 2px 0 0; }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 10px; border: 1px solid #e2e8f0;
+      background: #fff; display: grid; place-items: center; color: var(--gray);
+    }
+    main { padding: 20px; max-width: 440px; margin: 0 auto; width: 100%; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .balance {
+      background: var(--primary); color: #fff; border-radius: 24px; padding: 22px 22px 20px;
+    }
+    .balance-top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; opacity: .92; }
+    .amount { font-size: 32px; font-weight: 800; letter-spacing: -.03em; margin: 16px 0 6px; line-height: 1; }
+    .amount span { font-size: 20px; font-weight: 600; }
+    .refresh { font-size: 11px; opacity: .7; }
+    .add-money {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--navy); color: #fff; border: 0; border-radius: 999px;
+      padding: 12px 18px; font-weight: 800; font-size: 15px;
+    }
+    .row { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+    .actions { background: #fff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 16px 8px; margin-top: 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; }
+    .actions div { text-align: center; font-size: 12px; font-weight: 700; }
+    .tile { width: 48px; height: 48px; border-radius: 16px; background: var(--light); color: var(--primary); display: grid; place-items: center; margin: 0 auto 8px; }
+    .setup { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 16px; margin-top: 16px; }
+    .setup-h { display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; margin-bottom: 10px; }
+    .setup-h span { font-size: 11px; color: var(--gray); }
+    .setup-item { display: flex; align-items: center; gap: 12px; padding: 10px 8px; }
+    .setup-item.done { opacity: .45; }
+    .setup-item .ic { width: 32px; height: 32px; border-radius: 10px; background: var(--light); display: grid; place-items: center; color: var(--primary); }
+    .setup-item.done .ic { background: #ecfdf5; color: #059669; }
+    .recent { margin-top: 18px; }
+    .recent h2 { font-size: 14px; margin: 0 0 10px; }
+    .tx { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px 16px; display: flex; gap: 12px; align-items: center; }
+    .tx .ic { width: 36px; height: 36px; border-radius: 12px; background: #ecfdf5; color: #059669; display: grid; place-items: center; }
+    .tx .amt { margin-left: auto; font-weight: 800; color: #059669; white-space: nowrap; }
+    .back { background: none; border: 0; color: var(--gray); font-weight: 700; font-size: 12px; padding: 0 0 14px; }
+    h2.page { font-size: 22px; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .sub { color: var(--gray); font-size: 14px; margin: 6px 0 18px; }
+    .wallet-bal { font-size: 18px; font-weight: 800; }
+    .cta {
+      width: 100%; border: 0; border-radius: 14px; padding: 16px;
+      background: var(--primary); color: #fff; font-weight: 800; font-size: 15px;
+    }
+    .cta:disabled { opacity: .65; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; }
+    .label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--gray); }
+    .acct { font-size: 22px; font-weight: 800; letter-spacing: .04em; margin: 4px 0; }
+    .flash {
+      display: none; margin-bottom: 14px; border-radius: 12px; border: 1px solid #a7f3d0;
+      background: #ecfdf5; color: #065f46; padding: 12px 14px; font-size: 15px; font-weight: 700;
+    }
+    .flash.show { display: flex; align-items: center; gap: 8px; }
+    nav.dock {
+      position: fixed; left: 12px; right: 12px; bottom: 16px; z-index: 30;
+      background: rgba(255,255,255,.96); border: 1px solid #e2e8f0; border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(15,23,42,.12);
+      display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 6px 10px;
+    }
+    nav.dock span { text-align: center; font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #94a3b8; }
+    nav.dock span.active { color: var(--navy); }
+    nav.dock .save {
+      background: linear-gradient(#0C1A4D, #1D4ED8); color: #fff; border-radius: 12px;
+      margin-top: -18px; padding: 10px 4px; box-shadow: 0 10px 20px rgba(29,78,216,.35);
+    }
+    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .count-up { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <p class="kicker" id="kicker">Dashboard</p>
+        <h1 id="heading">Good evening, Adaeze</h1>
+      </div>
+      <div class="icon-btn" aria-hidden="true">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a2 2 0 0 1-4 0M4 8a6 6 0 1 1 12 0c0 5-3 6-3 6H7s-3-1-3-6"/></svg>
+      </div>
+    </header>
+
+    <main>
+      <section id="screen-dashboard" class="screen active">
+        <div class="balance">
+          <div class="balance-top">
+            <span>Available Balance</span>
+            <span>History ›</span>
+          </div>
+          <div class="row">
+            <div>
+              <p class="amount count-up" id="dash-amount"><span>₦</span>0.00</p>
+              <p class="refresh">Tap to refresh</p>
+            </div>
+            <button class="add-money" id="btn-add-money">+ Add Money</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <div><div class="tile">₦</div>Pay Now</div>
+          <div><div class="tile">◎</div>Savings</div>
+          <div><div class="tile">☰</div>Passbook</div>
+        </div>
+
+        <div class="setup">
+          <div class="setup-h">Get started <span id="setup-count">0/3</span></div>
+          <div class="setup-item" id="setup-wallet">
+            <div class="ic">👛</div>
+            <div style="flex:1;font-size:14px;font-weight:700">Add money to your wallet</div>
+            <div>›</div>
+          </div>
+          <div class="setup-item">
+            <div class="ic">🏦</div>
+            <div style="flex:1;font-size:14px;font-weight:700">Link a bank account</div>
+            <div>›</div>
+          </div>
+          <div class="setup-item">
+            <div class="ic">◎</div>
+            <div style="flex:1;font-size:14px;font-weight:700">Start a savings plan</div>
+            <div>›</div>
+          </div>
+        </div>
+
+        <div class="recent" id="recent" style="display:none">
+          <h2>Recent</h2>
+          <div class="tx">
+            <div class="ic">↓</div>
+            <div>
+              <div style="font-weight:700;font-size:14px">Wallet funding</div>
+              <div style="font-size:10px;color:var(--gray)">18 Aug</div>
+            </div>
+            <div class="amt" id="tx-amt">+25,000.00</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-wallet-empty" class="screen">
+        <button class="back" id="back-empty">← Back</button>
+        <h2 class="page">Fund Wallet</h2>
+        <p class="sub">Get a permanent account number to transfer into.</p>
+        <button class="cta" id="btn-generate">Generate account number</button>
+      </section>
+
+      <section id="screen-wallet-ready" class="screen">
+        <button class="back" id="back-ready">← Back</button>
+        <div class="row" style="align-items:flex-start">
+          <div>
+            <h2 class="page">Fund Wallet</h2>
+            <p class="sub">Transfer to this account · min ₦500</p>
+          </div>
+          <p class="wallet-bal count-up" id="wallet-amount">₦0.00</p>
+        </div>
+        <div class="flash" id="credited">✓ Credited ₦25,000.00</div>
+        <div class="card">
+          <p class="label">Bank</p>
+          <p style="font-weight:700;margin:4px 0 16px">VFD Microfinance Bank</p>
+          <p class="label">Account number</p>
+          <p class="acct" id="acct-no">··········</p>
+          <p class="label" style="margin-top:16px">Account name</p>
+          <p style="font-weight:700;margin:4px 0 0">ADAEZE OKONKWO</p>
+        </div>
+        <button class="cta" id="btn-check" style="margin-top:16px">I’ve sent money — check now</button>
+      </section>
+    </main>
+
+    <nav class="dock">
+      <span class="active">Home</span>
+      <span>Passbook</span>
+      <span class="save">Save</span>
+      <span>Activity</span>
+      <span>Settings</span>
+    </nav>
+  </div>
+
+  <script>
+    const FUNDED = 25000;
+    const fmt = (n) => '₦' + n.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function show(id) {
+      document.querySelectorAll('.screen').forEach((el) => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      const wallet = id !== 'screen-dashboard';
+      document.getElementById('kicker').textContent = wallet ? 'Wallet' : 'Dashboard';
+      document.getElementById('heading').textContent = wallet ? 'Fund Wallet' : 'Good evening, Adaeze';
+    }
+
+    function animateAmount(el, from, to, prefixInner = false) {
+      const start = performance.now();
+      const dur = 900;
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const val = from + (to - from) * eased;
+        el.innerHTML = prefixInner
+          ? '<span>₦</span>' + val.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).replace('₦','')
+          : fmt(val);
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    document.getElementById('btn-add-money').addEventListener('click', () => show('screen-wallet-empty'));
+    document.getElementById('setup-wallet').addEventListener('click', () => show('screen-wallet-empty'));
+    document.getElementById('back-empty').addEventListener('click', () => show('screen-dashboard'));
+    document.getElementById('back-ready').addEventListener('click', () => show('screen-dashboard'));
+
+    document.getElementById('btn-generate').addEventListener('click', () => {
+      const btn = document.getElementById('btn-generate');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span>Setting up…';
+      setTimeout(() => {
+        show('screen-wallet-ready');
+        const acct = document.getElementById('acct-no');
+        acct.textContent = '';
+        const digits = '1002345678';
+        let i = 0;
+        const type = setInterval(() => {
+          acct.textContent += digits[i];
+          i += 1;
+          if (i >= digits.length) clearInterval(type);
+        }, 70);
+      }, 1100);
+    });
+
+    document.getElementById('btn-check').addEventListener('click', () => {
+      const btn = document.getElementById('btn-check');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spin"></span>Checking…';
+      setTimeout(() => {
+        document.getElementById('credited').classList.add('show');
+        animateAmount(document.getElementById('wallet-amount'), 0, FUNDED);
+        document.getElementById('dash-amount').innerHTML = '<span>₦</span>25,000.00';
+        document.getElementById('setup-wallet').classList.add('done');
+        document.getElementById('setup-count').textContent = '1/3';
+        document.getElementById('recent').style.display = 'block';
+        btn.innerHTML = 'I’ve sent money — check now';
+        btn.disabled = false;
+      }, 1300);
+    });
+  </script>
+</body>
+</html>

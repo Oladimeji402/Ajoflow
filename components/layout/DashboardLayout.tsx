@@ -219,7 +219,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <header className="hidden md:flex sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl px-8 py-4 items-center justify-between">
                     <div>
                         <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-gray">{currentSection}</p>
-                        <h1 className="text-lg font-semibold text-brand-navy">{sectionHeading}</h1>
+                        <p className="text-lg font-semibold text-brand-navy">{sectionHeading}</p>
                     </div>
 
                     <div className="flex items-center gap-2">

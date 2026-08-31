@@ -1,0 +1,31 @@
+# Subtech Ajo Solution (AjoFlow)
+
+> Digital ajo savings for Nigeria. Create target or general savings plans, automate contributions, track every cycle in a passbook, and receive payouts to a verified bank account.
+
+Subtech Ajo Solution is the company behind AjoFlow, a web app at https://ajoflow.com. It is not a bank. Payments are processed through licensed partners such as Monicredit.
+
+## Site
+
+- [Home](https://ajoflow.com): Product overview, how it works, features, FAQs
+- [About](https://ajoflow.com/about): Company and product background
+- [Contact](https://ajoflow.com/contact): Support email and in-app help
+- [Sign up](https://ajoflow.com/signup): Create an account
+- [Log in](https://ajoflow.com/login): Existing members
+- [Terms of Service](https://ajoflow.com/terms)
+- [Privacy Policy](https://ajoflow.com/privacy)
+
+Authenticated app areas (dashboard, savings, wallet, passbook, support tickets) are private and should not be indexed.
+
+## Product facts
+
+- Audience: adults 18+ in Nigeria with a valid bank account
+- Plan types: target savings and general savings
+- Frequencies: daily, weekly, monthly
+- KYC is required before full payout access
+- Platform account creation does not charge a hidden fee; payment partners may have processing windows
+- Sponsor: AMK 69 Project 1
+
+## Optional
+
+- [Sitemap](https://ajoflow.com/sitemap.xml)
+- [Robots](https://ajoflow.com/robots.txt)

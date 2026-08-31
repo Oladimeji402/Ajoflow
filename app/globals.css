@@ -1,10 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
 
   --color-blue-primary: #1A35D4;
   --color-blue-navy: #0D1A6E;
@@ -61,6 +60,40 @@
 @keyframes float-y {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-10px); }
+}
+
+/* Auth panel — a single dash travels the ajo hexagon, connecting node to node. */
+@keyframes auth-connect {
+  to { stroke-dashoffset: -1000; }
+}
+
+.auth-connect-trace {
+  stroke-dasharray: 168 832;
+  animation: auth-connect 7.2s linear infinite;
+}
+
+.auth-connect-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: auth-connect-node 7.2s ease-in-out infinite;
+}
+
+@keyframes auth-connect-node {
+  0%, 12%, 100% { opacity: 0.28; }
+  6% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-connect-trace,
+  .auth-connect-node {
+    animation: none;
+  }
+  .auth-connect-trace {
+    stroke-dasharray: none;
+  }
+  .auth-connect-node {
+    opacity: 0.7;
+  }
 }
 
 /* Asymmetric bento — wide automation cell, tall passbook cell, wide payout cell.

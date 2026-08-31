@@ -56,8 +56,6 @@ export async function POST(request: Request) {
       RATE_LIMITS.provisionVa,
     );
     if (!limited.ok) return rateLimitResponse(limited.retryAfterSeconds);
-    
-    console.log(`[provision-virtual-account] Starting provisioning for user ${auth.user.id}`);
 
     const { data: profile, error: profileError } = await auth.supabase
       .from("profiles")
@@ -128,17 +126,13 @@ export async function POST(request: Request) {
 
     normalizedPhone = normalizePhoneForMonicredit(phoneSource);
     if (!normalizedPhone) return badRequestResponse("Phone number format is invalid.");
-    
-    console.log(`[provision-virtual-account] Normalized phone: ${normalizedPhone} (from ${phoneSource})`);
 
     const { firstName, lastName } = splitName(profile.name ?? "");
     
     // Extract NIN and BVN from profile
     const nin = typeof profile.nin === "string" ? profile.nin : undefined;
     const bvn = typeof profile.bvn === "string" ? profile.bvn : undefined;
-    
-    console.log(`[provision-virtual-account] Creating Monicredit account for ${firstName} ${lastName}, phone: ${normalizedPhone}, email: ${emailSource}, nin: ${nin ? 'provided' : 'not provided'}, bvn: ${bvn ? 'provided' : 'not provided'}`);
-    
+
     const created = await createMonicreditVirtualAccount({
       firstName,
       lastName,

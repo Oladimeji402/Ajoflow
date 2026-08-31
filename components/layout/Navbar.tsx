@@ -74,10 +74,11 @@ export const Navbar = () => {
     }, [isMobileMenuOpen]);
 
     const navLinks = [
-        { name: 'How it Works', href: '#how-it-works' },
-        { name: 'Features', href: '#features' },
-        { name: 'Testimonials', href: '#testimonials' },
-        { name: 'FAQ', href: '#faq' },
+        { name: 'How it Works', href: '/#how-it-works' },
+        { name: 'Features', href: '/#features' },
+        { name: 'Security', href: '/#security' },
+        { name: 'FAQ', href: '/#faq' },
+        { name: 'About', href: '/about' },
     ];
 
     return (

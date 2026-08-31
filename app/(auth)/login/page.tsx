@@ -106,10 +106,10 @@ function LoginContent() {
 
             <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">Sign in</p>
-                <h2 id="login-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
+                <h1 id="login-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
                     <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Welcome </span>
                     <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.02em' }}>back.</span>
-                </h2>
+                </h1>
                 <p className="mt-1 text-sm text-slate-500">
                     Enter your details to continue.
                 </p>
@@ -208,9 +208,9 @@ export default function LoginPage() {
             <section aria-labelledby="login-title" className="space-y-6">
                 <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">Sign in</p>
-                    <h2 id="login-title" className="mt-2 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-brand-navy">
+                    <h1 id="login-title" className="mt-2 text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-brand-navy">
                         Welcome back.
-                    </h2>
+                    </h1>
                 </div>
             </section>
         }>

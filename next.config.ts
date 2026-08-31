@@ -9,6 +9,12 @@ const marketerAppUrl = (
 ).replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
+  productionBrowserSourceMaps: false,
+  compress: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "motion"],
+  },
   async redirects() {
     return [
       {

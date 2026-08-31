@@ -67,9 +67,7 @@ export default function TicketDetailPage() {
                     table: 'support_case_events',
                     filter: `case_id=eq.${ticketId}`,
                 },
-                (payload) => {
-                    console.log('New message received:', payload);
-                    // Reload ticket to get the new message
+                () => {
                     void loadTicket();
                 }
             )

@@ -57,10 +57,10 @@ export default function ForgotPasswordPage() {
             <section aria-labelledby="email-sent-title" className="space-y-6">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">Email sent</p>
-                    <h2 id="email-sent-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
+                    <h1 id="email-sent-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
                         <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Check your </span>
                         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.02em' }}>inbox.</span>
-                    </h2>
+                    </h1>
                     <p className="mt-1 text-sm text-slate-500">
                         Instructions on the way to{' '}
                         <span className="font-semibold text-brand-navy">{email}</span>.
@@ -125,10 +125,10 @@ export default function ForgotPasswordPage() {
         <section aria-labelledby="forgot-title" className="space-y-6">
             <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-accent">Password recovery</p>
-                <h2 id="forgot-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
+                <h1 id="forgot-title" className="mt-2 text-[1.85rem] leading-tight text-brand-navy">
                     <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Forgot your </span>
                     <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.02em' }}>password?</span>
-                </h2>
+                </h1>
                 <p className="mt-1 text-sm text-slate-500">
                     Enter your AjoFlow email and we&apos;ll send a password reset OTP. This also resets access to the
                     marketer portal if you use the same account.

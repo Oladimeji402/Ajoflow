@@ -23,23 +23,33 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
                     <div className="absolute inset-0 bg-[#2563EB]" />
                     <div className="absolute -top-28 -left-20 h-80 w-80 rounded-full bg-brand-primary/15 blur-3xl" />
                     <div className="absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-brand-accent/20 blur-3xl" />
-                    {/* Faint circle motif — abstract ajo ring */}
-                    <svg className="absolute inset-0 h-full w-full opacity-[0.07]" viewBox="0 0 480 640" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="240" cy="320" r="210" stroke="white" strokeWidth="1.5" />
-                        <circle cx="240" cy="320" r="155" stroke="white" strokeWidth="1" />
-                        <circle cx="240" cy="320" r="100" stroke="white" strokeWidth="0.75" />
-                        <circle cx="240" cy="110" r="6" fill="white" />
-                        <circle cx="408" cy="215" r="5" fill="white" />
-                        <circle cx="408" cy="425" r="5" fill="white" />
-                        <circle cx="240" cy="530" r="6" fill="white" />
-                        <circle cx="72" cy="425" r="5" fill="white" />
-                        <circle cx="72" cy="215" r="5" fill="white" />
-                        <line x1="240" y1="110" x2="408" y2="215" stroke="white" strokeWidth="0.5" />
-                        <line x1="408" y1="215" x2="408" y2="425" stroke="white" strokeWidth="0.5" />
-                        <line x1="408" y1="425" x2="240" y2="530" stroke="white" strokeWidth="0.5" />
-                        <line x1="240" y1="530" x2="72" y2="425" stroke="white" strokeWidth="0.5" />
-                        <line x1="72" y1="425" x2="72" y2="215" stroke="white" strokeWidth="0.5" />
-                        <line x1="72" y1="215" x2="240" y2="110" stroke="white" strokeWidth="0.5" />
+                    {/* Ajo ring — faint structure, then a line that travels node to node. */}
+                    <svg className="absolute inset-0 h-full w-full" viewBox="0 0 480 640" fill="none" aria-hidden>
+                        <g opacity="0.08" stroke="white">
+                            <circle cx="240" cy="320" r="210" strokeWidth="1.5" />
+                            <circle cx="240" cy="320" r="155" strokeWidth="1" />
+                            <circle cx="240" cy="320" r="100" strokeWidth="0.75" />
+                            <path
+                                d="M240 110 L408 215 L408 425 L240 530 L72 425 L72 215 Z"
+                                strokeWidth="0.5"
+                            />
+                        </g>
+                        <path
+                            className="auth-connect-trace"
+                            pathLength="1000"
+                            d="M240 110 L408 215 L408 425 L240 530 L72 425 L72 215 Z"
+                            stroke="white"
+                            strokeWidth="1.35"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            opacity="0.38"
+                        />
+                        <circle className="auth-connect-node" cx="240" cy="110" r="6" fill="white" style={{ animationDelay: '0s' }} />
+                        <circle className="auth-connect-node" cx="408" cy="215" r="5" fill="white" style={{ animationDelay: '1.2s' }} />
+                        <circle className="auth-connect-node" cx="408" cy="425" r="5" fill="white" style={{ animationDelay: '2.4s' }} />
+                        <circle className="auth-connect-node" cx="240" cy="530" r="6" fill="white" style={{ animationDelay: '3.6s' }} />
+                        <circle className="auth-connect-node" cx="72" cy="425" r="5" fill="white" style={{ animationDelay: '4.8s' }} />
+                        <circle className="auth-connect-node" cx="72" cy="215" r="5" fill="white" style={{ animationDelay: '6s' }} />
                     </svg>
 
                     <div className="relative z-10 flex h-full flex-col px-10 py-10">
@@ -56,11 +66,11 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
                             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-accent/80">
                                 Ajo · Digitised
                             </p>
-                            <h1 className="mt-4 leading-[1.02] tracking-tight text-white" style={{ fontSize: 'clamp(2.2rem,3.2vw,3rem)' }}>
+                            <p className="mt-4 leading-[1.02] tracking-tight text-white" style={{ fontSize: 'clamp(2.2rem,3.2vw,3rem)' }}>
                                 <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Your circle</span>
                                 <br />
                                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.03em' }}>saves together.</span>
-                            </h1>
+                            </p>
                             <p className="mt-4 max-w-[280px] leading-relaxed text-white/50" style={{ fontSize: '14px' }}>
                                 Nigeria&apos;s trusted Ajo tradition — now digital, verified, and always on time.
                             </p>
@@ -110,7 +120,7 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
                         </motion.div>
 
                         <p className="mt-6 text-center text-[11px] text-slate-400">
-                            &copy; 2026 AjoFlow &middot; All rights reserved
+                            &copy; {new Date().getFullYear()} Subtech Ajo Solution &middot; All rights reserved
                         </p>
                     </div>
                 </main>
