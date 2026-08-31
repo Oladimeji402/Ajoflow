@@ -146,7 +146,7 @@ export const SocialProof = () => {
   const [sideA, sideB, ...bottomRow] = rest;
 
   return (
-    <section id="testimonials" className="py-24 lg:py-32 bg-brand-light relative overflow-hidden">
+    <section id="testimonials" className="py-24 lg:py-32 bg-brand-light relative overflow-hidden scroll-mt-[7rem]">
       <Container className="relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 12 }}

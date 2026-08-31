@@ -183,7 +183,7 @@ const PayoutCard = () => (
 // ─── Features section — asymmetric bento ──────────────────────────────────────
 export const Features = () => {
     return (
-        <section id="features" className="bg-[#1A35D4] relative overflow-hidden py-24 lg:py-32">
+        <section id="features" className="bg-[#1A35D4] relative overflow-hidden py-24 lg:py-32 scroll-mt-[7rem]">
             <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-brand-primary/[0.04] rounded-full blur-[120px] -ml-40 -mt-40 pointer-events-none" />
             <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-brand-accent/[0.03] rounded-full blur-[120px] -mr-40 -mb-40 pointer-events-none" />
 
