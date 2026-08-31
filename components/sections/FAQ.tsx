@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
 import { Container } from '../ui/Container';
+import { SectionHeader } from './SectionHeader';
 import { FAQS } from '@/lib/faq';
 
 type Node = {
@@ -203,19 +204,12 @@ export const FAQ = () => {
                             </div>
                         )}
                         <div className="relative z-10">
-                            <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#1A35D4] mb-4">
-                                — FAQ
-                            </p>
-                            <h2
-                                className="leading-[1.04] mb-4"
-                                style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', color: '#0D1A6E' }}
-                            >
-                                <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Questions, </span>
-                                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.03em' }}>answered.</span>
-                            </h2>
-                            <p className="text-brand-gray text-[15px] leading-relaxed max-w-sm">
-                                The things people ask before they start their first plan.
-                            </p>
+                            <SectionHeader
+                                eyebrow="FAQ"
+                                serif="Questions,"
+                                rest="answered."
+                                subhead="The things people ask before they start their first plan."
+                            />
                         </div>
                     </motion.div>
 

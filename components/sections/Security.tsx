@@ -1,6 +1,8 @@
 'use client';
 
 import { Container } from '../ui/Container';
+import { SectionHeader } from './SectionHeader';
+import { MonicreditLogo } from '../ui/MonicreditLogo';
 import { motion } from 'motion/react';
 import { ShieldCheck, Lock, CheckCircle2, Eye, Fingerprint, KeyRound } from 'lucide-react';
 
@@ -24,18 +26,14 @@ export const Security = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-electric/15 border border-brand-electric/20 mb-6">
-              <ShieldCheck size={12} className="text-brand-electric" />
-              <span className="text-[11px] font-bold text-brand-electric uppercase tracking-[0.1em]">Security First</span>
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold mb-6 tracking-tight leading-tight">
-              Your trust is our{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-electric to-[#93C5FD]">greatest asset.</span>
-            </h2>
-            <p className="text-slate-400 text-[15px] mb-10 leading-relaxed max-w-lg">
-              We use the same encryption standards as major global banks. Your money and data are protected by multiple layers of security.
-            </p>
+            <SectionHeader
+              tone="dark"
+              className="mb-10"
+              eyebrow="Security"
+              serif="Your trust is"
+              rest="our greatest asset."
+              subhead="We use the same encryption standards as major global banks. Your money and data are protected by multiple layers of security."
+            />
 
             <div className="space-y-5">
               {[
@@ -128,14 +126,9 @@ export const Security = () => {
                 className="mt-4 flex items-center gap-3 flex-wrap"
               >
                 <span className="text-[10px] text-slate-500 uppercase tracking-widest">Payments by</span>
-                {/* monicredit badge */}
-                <div className="flex items-center gap-1.5 bg-white/[0.06] border border-white/[0.08] rounded-lg px-3 py-2">
-                  <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="32" height="32" rx="6" fill="#1a56db" />
-                    <path d="M6 16c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10S6 21.523 6 16z" stroke="white" strokeWidth="2" fill="none"/>
-                    <path d="M11 16h10M16 11v10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-                  </svg>
-                  <span className="text-[12px] font-bold text-white tracking-tight">monicredit</span>
+                <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5">
+                  <MonicreditLogo size={20} />
+                  <span className="text-[12px] font-bold text-slate-800 tracking-tight">monicredit</span>
                 </div>
                 {/* Visa badge */}
                 <div className="flex items-center justify-center bg-white rounded-lg px-3 py-2 h-9">

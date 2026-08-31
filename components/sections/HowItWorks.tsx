@@ -1,6 +1,7 @@
 'use client';
 
 import { Container } from '../ui/Container';
+import { SectionHeader } from './SectionHeader';
 import {
     motion,
     useInView,
@@ -183,18 +184,13 @@ export const HowItWorks = () => {
                 </div>
 
                 <Container className="relative z-10">
-                    <div className="mb-14 lg:mb-16 lg:text-center">
-                        <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#1A35D4] mb-4">
-                            How It Works
-                        </p>
-                        <h2
-                            className="leading-[1.04] max-w-md lg:max-w-xl lg:mx-auto"
-                            style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)', color: '#0D1A6E' }}
-                        >
-                            <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Four steps </span>
-                            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.03em' }}>to your first savings win.</span>
-                        </h2>
-                    </div>
+                    <SectionHeader
+                        className="mb-14 lg:mb-16"
+                        eyebrow="How it works"
+                        serif="Four steps"
+                        rest="to your first savings win."
+                        subhead="Create a plan, contribute on a schedule, watch the passbook, and get paid out to your bank."
+                    />
 
                     <div ref={trackRef} className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-6">
                         {rail.width > 0 && (

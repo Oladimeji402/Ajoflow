@@ -1,6 +1,7 @@
 'use client';
 
 import { Container } from '../ui/Container';
+import { SectionHeader } from './SectionHeader';
 import { motion } from 'motion/react';
 import { ArrowRight, Wallet, Zap } from 'lucide-react';
 import Link from 'next/link';
@@ -65,24 +66,15 @@ export const CTA = () => {
                     </GlassIcon>
 
                     <div className="relative z-10 max-w-2xl mx-auto">
-                        <h2
-                            className="leading-[1.08] mb-4"
-                            style={{
-                                fontSize: 'clamp(1.85rem, 4.2vw, 3.15rem)',
-                                color: '#FFFFFF',
-                                fontFamily: 'var(--font-display)',
-                                fontWeight: 800,
-                                letterSpacing: '-0.03em',
-                            }}
-                        >
-                            Start your first savings win today
-                        </h2>
-                        <p
-                            className="text-[15px] sm:text-[16px] leading-relaxed mb-8 max-w-lg mx-auto"
-                            style={{ color: 'rgba(255,255,255,0.72)' }}
-                        >
-                            Create a free account, set a target or general plan, and track every contribution in your passbook.
-                        </p>
+                        <SectionHeader
+                            tone="dark"
+                            align="center"
+                            className="mb-8"
+                            eyebrow="Get started"
+                            serif="Start your first"
+                            rest="savings win today."
+                            subhead="Create a free account, set a target or general plan, and track every contribution in your passbook."
+                        />
                         <Link href="/signup">
                             <button
                                 className="inline-flex items-center justify-center gap-2 text-[15px] font-bold px-8 py-3.5 rounded-full group transition-transform hover:scale-[1.02]"

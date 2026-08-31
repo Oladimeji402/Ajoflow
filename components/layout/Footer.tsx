@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Container } from '../ui/Container';
 import { BrandLogo } from '../ui/BrandLogo';
+import { MonicreditLogo } from '../ui/MonicreditLogo';
 import { SITE_NAME, SITE_SUPPORT_EMAIL } from '@/lib/site';
 
 export const Footer = () => {
@@ -78,9 +79,10 @@ export const Footer = () => {
                     </p>
 
                     <div className="flex items-center gap-3">
-                        <span className="text-[11px] font-medium text-slate-400 bg-white/[0.04] border border-white/[0.06] rounded-md px-2.5 py-1.5">
-                            Payments by Monicredit
-                        </span>
+                        <div className="flex items-center gap-2 bg-white/[0.04] border border-white/[0.06] rounded-md px-2.5 py-1.5">
+                            <MonicreditLogo size={16} />
+                            <span className="text-[11px] font-medium text-slate-400">Payments by Monicredit</span>
+                        </div>
                         <span className="text-[11px] text-slate-600">· 256-bit SSL secured</span>
                     </div>
                 </Container>

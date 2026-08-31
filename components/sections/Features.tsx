@@ -1,6 +1,7 @@
 'use client';
 
 import { Container } from '../ui/Container';
+import { SectionHeader } from './SectionHeader';
 import { motion } from 'motion/react';
 import { CheckCircle2, ArrowDownLeft, Zap } from 'lucide-react';
 
@@ -192,23 +193,15 @@ export const Features = () => {
                     initial={{ opacity: 0, y: 16 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mb-12 lg:mb-16 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4"
+                    className="mb-12 lg:mb-16"
                 >
-                    <div>
-                        <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-brand-accent mb-4">
-                            Features
-                        </p>
-                        <h2
-                            className="text-white leading-[1.06]"
-                            style={{ fontSize: 'clamp(2rem, 4vw, 2.8rem)' }}
-                        >
-                            <span style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontWeight: 400 }}>Built </span>
-                            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, letterSpacing: '-0.03em' }}>around how<br />you actually save.</span>
-                        </h2>
-                    </div>
-                    <p className="text-white/35 text-[14px] leading-relaxed max-w-xs sm:text-right">
-                        Every feature exists because a Nigerian saver asked for it.
-                    </p>
+                    <SectionHeader
+                        tone="dark"
+                        eyebrow="Features"
+                        serif="Built"
+                        rest={<>around how<br />you actually save.</>}
+                        subhead="Every feature exists because a Nigerian saver asked for it."
+                    />
                 </motion.div>
 
                 <div className="bento-features">
