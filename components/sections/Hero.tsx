@@ -1,7 +1,6 @@
 'use client';
 
 import { Container } from '../ui/Container';
-import { Button } from '../ui/Button';
 import { motion } from 'motion/react';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
@@ -186,61 +185,57 @@ export const Hero = () => {
             <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-brand-accent/[0.04] blur-[120px] pointer-events-none" />
             <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-brand-primary/[0.07] blur-[80px] pointer-events-none" />
 
-            <Container className="relative z-10 w-full pt-[116px] pb-24 lg:pt-[148px] lg:pb-32">
-                <div className="grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
+            <Container className="relative z-10 w-full min-w-0 overflow-x-hidden pt-[108px] pb-16 sm:pt-[116px] sm:pb-24 lg:pt-[148px] lg:pb-32">
+                <div className="grid w-full min-w-0 lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
 
                     {/* ─── LEFT — Typographic lead ─── */}
                     <motion.div
                         initial={{ opacity: 0, y: 28 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: [0.21, 0.45, 0.27, 0.9] }}
-                        className="max-w-[600px]"
+                        className="@container w-full min-w-0 max-w-[600px]"
                     >
                         {/* Eyebrow */}
                         <motion.div
                             initial={{ opacity: 0, x: -12 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.08 }}
-                            className="flex items-center gap-2.5 mb-7"
+                            className="flex items-center gap-2.5 mb-5 sm:mb-7"
                         >
-                            <span className="relative flex h-1.5 w-1.5">
+                            <span className="relative flex h-1.5 w-1.5 shrink-0">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75" />
                                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-accent" />
                             </span>
-                            <span className="text-[11px] font-bold tracking-[0.18em] uppercase text-white/40">
+                            <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.14em] sm:tracking-[0.18em] uppercase text-white/40">
                                 Target + General savings
                             </span>
                         </motion.div>
 
-                        {/* Headline — tradition (serif italic) meets technology (sans bold) */}
+                        {/* Headline — sized to the column so "automated." never clips on phones */}
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.14, duration: 0.55 }}
-                            className="leading-[0.92] mb-7"
-                            style={{ fontSize: 'clamp(3.8rem, 8vw, 6.5rem)' }}
+                            className="mb-5 sm:mb-7 w-full max-w-full leading-[0.98] font-normal text-[1.85rem] sm:text-[clamp(2.75rem,7vw,6.5rem)]"
                         >
-                            {/* "Ajo," — italic serif: represents the ancient tradition */}
                             <span
+                                className="block"
                                 style={{
                                     fontFamily: 'var(--font-serif)',
                                     fontStyle: 'italic',
                                     fontWeight: 400,
                                     color: '#F5A623',
                                     letterSpacing: '-0.02em',
-                                    display: 'block',
                                 }}
                             >
                                 Ajo,
                             </span>
-                            {/* "automated." — bold geometric sans: represents the technology */}
                             <span
+                                className="block w-full max-w-full tracking-[-0.06em] sm:tracking-[-0.04em]"
                                 style={{
                                     fontFamily: 'var(--font-display)',
                                     fontWeight: 800,
                                     color: '#FFFFFF',
-                                    letterSpacing: '-0.04em',
-                                    display: 'block',
                                 }}
                             >
                                 automated.
@@ -252,7 +247,7 @@ export const Hero = () => {
                             initial={{ opacity: 0, y: 14 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.22 }}
-                            className="text-white/50 text-[16px] sm:text-[17px] leading-[1.65] mb-10 max-w-[440px]"
+                            className="text-white/50 text-[14px] sm:text-[17px] leading-[1.65] mb-8 sm:mb-10 w-full max-w-full sm:max-w-[440px] text-pretty"
                         >
                             Save toward targets or general plans, track every naira, and pay from wallet in seconds —
                             {' '}<span className="text-white/80">clear records, no manual stress.</span>
@@ -263,11 +258,11 @@ export const Hero = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.3 }}
-                            className="flex flex-col sm:flex-row gap-3 mb-12"
+                            className="flex flex-col sm:flex-row gap-3 mb-10 sm:mb-12"
                         >
                             <Link href="/signup" className="w-full sm:w-auto">
                                 <button
-                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[15px] font-bold px-8 py-3.5 rounded-full group transition-all"
+                                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-[15px] font-bold px-6 sm:px-8 py-3.5 rounded-full group transition-all"
                                     style={{
                                         backgroundColor: '#F5A623',
                                         color: '#1A35D4',
@@ -281,7 +276,7 @@ export const Hero = () => {
                                 </button>
                             </Link>
                             <a href="/#how-it-works" className="w-full sm:w-auto">
-                                <button className="w-full inline-flex items-center justify-center text-[15px] font-semibold px-8 py-3.5 rounded-full text-white/60 hover:text-white border border-white/[0.08] hover:border-white/[0.16] bg-transparent transition-all">
+                                <button className="w-full inline-flex items-center justify-center text-[15px] font-semibold px-6 sm:px-8 py-3.5 rounded-full text-white/60 hover:text-white border border-white/[0.08] hover:border-white/[0.16] bg-transparent transition-all">
                                     How It Works
                                 </button>
                             </a>
@@ -292,18 +287,23 @@ export const Hero = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.42 }}
-                            className="flex flex-wrap items-center gap-6 sm:gap-8"
+                            className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-8"
                         >
                             {[
                                 { value: '₦0', label: 'Missed payouts' },
-                                { value: '2 Types', label: 'Target + general plans' },
-                                { value: 'Live', label: 'Real-time tracking' },
+                                { value: '2 Types', label: 'Plan types' },
+                                { value: 'Live', label: 'Live tracking' },
                             ].map((stat, i) => (
-                                <div key={i} className={`${i > 0 ? 'pl-6 sm:pl-8 border-l border-white/[0.08]' : ''}`}>
-                                    <p className="text-white font-black text-[1.2rem] leading-none tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+                                <div
+                                    key={stat.label}
+                                    className={`min-w-0 ${i > 0 ? 'pl-2 sm:pl-8 border-l border-white/[0.08]' : ''}`}
+                                >
+                                    <p className="text-white font-black text-[0.95rem] sm:text-[1.2rem] leading-none tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
                                         {stat.value}
                                     </p>
-                                    <p className="text-white/35 text-[11px] mt-1 font-medium">{stat.label}</p>
+                                    <p className="text-white/35 text-[10px] sm:text-[11px] mt-1 font-medium leading-snug">
+                                        {stat.label}
+                                    </p>
                                 </div>
                             ))}
                         </motion.div>

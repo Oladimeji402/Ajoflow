@@ -92,7 +92,8 @@ export const Navbar = () => {
             <Container className="flex items-center justify-between">
 
                 {/* Logo */}
-                <BrandLogo size="md" dark={isScrolled} />
+                <BrandLogo size="sm" dark={isScrolled} className="sm:hidden" />
+                <BrandLogo size="md" dark={isScrolled} className="hidden sm:inline-flex" />
 
                 {/* Center Nav */}
                 <div className="hidden md:flex items-center">

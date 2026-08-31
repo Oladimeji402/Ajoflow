@@ -7,7 +7,7 @@
   <path d="M43.5 51.6 A23 23 0 0 1 20.5 51.6" stroke="#2A4A6B" stroke-width="3.5" fill="none" stroke-linecap="round"/>
   <path d="M18.6 50.2 A23 23 0 0 1 9.5 34" stroke="#1E3A55" stroke-width="3.5" fill="none" stroke-linecap="round"/>
   <path d="M9 31 A23 23 0 0 1 12.1 19.5" stroke="#1E3A55" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  <text x="32" y="38" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-weight="700" fill="#F59F0C">₦</text>
+  <text x="32" y="38" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-weight="700" fill="#F59F0C">?</text>
   <circle cx="32" cy="9" r="2.4" fill="#F59F0C"/>
   <circle cx="55" cy="32" r="2.4" fill="#F59F0C" opacity="0.6"/>
   <circle cx="45.4" cy="50.2" r="2.4" fill="#2A4A6B"/>

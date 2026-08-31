@@ -6,8 +6,8 @@ export const SponsorBar = () => {
             className="fixed top-0 left-0 right-0 h-9 bg-white border-b border-slate-100"
             style={{ zIndex: 1001 }}
         >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-center gap-2.5">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.12em]">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center justify-center gap-2 min-w-0">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-[0.12em] truncate">
                     Proudly sponsored by
                 </span>
                 <Image

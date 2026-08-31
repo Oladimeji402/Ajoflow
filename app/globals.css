@@ -32,8 +32,12 @@
 }
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
+
   body {
-    @apply font-sans text-brand-navy bg-white antialiased;
+    @apply font-sans text-brand-navy bg-white antialiased overflow-x-hidden;
   }
 
   h1, h2, h3, h4 {
