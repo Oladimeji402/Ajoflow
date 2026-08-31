@@ -94,7 +94,7 @@ export const Hero = () => {
                         </ul>
                     </div>
 
-                    <div className="flex justify-center lg:justify-end">
+                    <div className="hidden justify-center lg:flex lg:justify-end">
                         <HeroProductVisual />
                     </div>
                 </div>
