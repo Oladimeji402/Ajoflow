@@ -67,43 +67,35 @@
   50%       { transform: translateY(-10px); }
 }
 
-/* Hero phone — wallet → save → payout loop */
-@keyframes hero-phone-cycle {
-  0%, 28% { opacity: 1; }
-  33%, 100% { opacity: 0; }
+/* Hero phone — dashboard → pay → activity loop.
+   Screens are stacked, so each later layer simply fades in over the one
+   below and the whole stack fades out together at the end of the cycle.
+   That keeps a screen on-frame at every moment — no blank gap between steps. */
+@keyframes hero-phone-layer-2 {
+  0%, 31%   { opacity: 0; }
+  34%, 97%  { opacity: 1; }
+  100%      { opacity: 0; }
+}
+
+@keyframes hero-phone-layer-3 {
+  0%, 64%   { opacity: 0; }
+  67%, 97%  { opacity: 1; }
+  100%      { opacity: 0; }
 }
 
 .hero-phone-screen {
   position: absolute;
   inset: 0;
+}
+
+.hero-phone-layer-2 {
   opacity: 0;
+  animation: hero-phone-layer-2 12s ease-in-out infinite;
 }
 
-.hero-phone-screen-1 {
-  opacity: 1;
-  animation: hero-phone-cycle 12s infinite;
-}
-
-.hero-phone-screen-2 {
-  animation: hero-phone-cycle 12s 4s infinite;
-}
-
-.hero-phone-screen-3 {
-  animation: hero-phone-cycle 12s 8s infinite;
-}
-
-.hero-phone-card-1 {
-  animation: hero-phone-cycle 12s infinite;
-}
-
-.hero-phone-card-2 {
+.hero-phone-layer-3 {
   opacity: 0;
-  animation: hero-phone-cycle 12s 4s infinite;
-}
-
-.hero-phone-card-3 {
-  opacity: 0;
-  animation: hero-phone-cycle 12s 8s infinite;
+  animation: hero-phone-layer-3 12s ease-in-out infinite;
 }
 
 /* Auth panel — a single dash travels the ajo hexagon, connecting node to node. */
@@ -130,12 +122,8 @@
 @media (prefers-reduced-motion: reduce) {
   .auth-connect-trace,
   .auth-connect-node,
-  .hero-phone-screen-1,
-  .hero-phone-screen-2,
-  .hero-phone-screen-3,
-  .hero-phone-card-1,
-  .hero-phone-card-2,
-  .hero-phone-card-3 {
+  .hero-phone-layer-2,
+  .hero-phone-layer-3 {
     animation: none;
   }
   .auth-connect-trace {
@@ -144,14 +132,8 @@
   .auth-connect-node {
     opacity: 0.7;
   }
-  .hero-phone-screen-1,
-  .hero-phone-card-1 {
-    opacity: 1;
-  }
-  .hero-phone-screen-2,
-  .hero-phone-screen-3,
-  .hero-phone-card-2,
-  .hero-phone-card-3 {
+  .hero-phone-layer-2,
+  .hero-phone-layer-3 {
     opacity: 0;
   }
 }
