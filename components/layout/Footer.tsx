@@ -3,6 +3,7 @@ import { Container } from '../ui/Container';
 import { BrandLogo } from '../ui/BrandLogo';
 import { MonicreditLogo } from '../ui/MonicreditLogo';
 import { SITE_NAME, SITE_SUPPORT_EMAIL } from '@/lib/site';
+import { CookieSettingsButton } from '@/components/legal/CookieSettingsButton';
 
 export const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -77,6 +78,8 @@ export const Footer = () => {
                 <Container className="py-5 flex flex-col md:flex-row justify-between items-center gap-3">
                     <p className="text-[11px] text-slate-600">
                         © {currentYear} {SITE_NAME}. All rights reserved.
+                        {' · '}
+                        <CookieSettingsButton className="text-[11px] text-slate-400 hover:text-white transition-colors" />
                     </p>
 
                     <div className="flex items-center gap-3">

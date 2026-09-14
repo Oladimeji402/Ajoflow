@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Sans, Instrument_Serif, Syne } from "next/font/google";
 import "./globals.css";
 import { ToastProvider } from "@/components/ui/Toast";
+import { CookieBanner } from "@/components/legal/CookieBanner";
 import { SiteJsonLd } from "@/components/seo/SiteJsonLd";
 import {
   SITE_DEFAULT_TITLE,
@@ -107,7 +108,10 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning>
         <SiteJsonLd />
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          <CookieBanner />
+        </ToastProvider>
       </body>
     </html>
   );

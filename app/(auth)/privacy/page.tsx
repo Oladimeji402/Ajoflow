@@ -22,7 +22,7 @@ const sections = [
   {
     title: '3. How we share information',
     body:
-      'We may share your information with trusted service providers that help us operate the platform, including payment processors, identity verification providers, analytics vendors, cloud hosting providers, and customer support tools. We may also disclose information when required by law, court order, regulatory request, or to protect the rights, safety, or security of our users.',
+      'We may share your information with trusted service providers that help us operate the platform, including payment processors, identity verification providers, cloud hosting providers, and customer support tools. We may also disclose information when required by law, court order, regulatory request, or to protect the rights, safety, or security of our users.',
   },
   {
     title: '4. Security of your information',
@@ -32,7 +32,7 @@ const sections = [
   {
     title: '5. Cookies and analytics',
     body:
-      'AjoFlow may use cookies, device identifiers, and analytics tools to understand how users interact with the platform, diagnose issues, and improve performance. You can generally disable cookies through your browser settings, although some features may not work as expected if cookies are disabled.',
+      'AjoFlow uses essential cookies and similar storage to keep you signed in, protect your account, remember referral codes during signup, and operate the platform securely. We do not currently use advertising cookies or third-party tracking pixels. You can generally disable cookies through your browser settings, although login and other core features may not work as expected if cookies are disabled. You can review this notice again from the Cookie notice link in the site footer.',
   },
   {
     title: '6. Your choices and rights',
